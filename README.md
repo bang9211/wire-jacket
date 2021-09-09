@@ -9,6 +9,6 @@ wire-jacket wrapping google/wire and provides advanced DI(Dependency Injection).
 
 
 Features
-- IoC Container using Config(viper)
+- IoC Container based environment variables using viper
 - Lazy Loading
 - Eager Loading

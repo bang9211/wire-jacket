@@ -6,3 +6,8 @@ A jacket is an outer sheath that protects the wire core from mechanical, moistur
 wire-jacket wrapping google/wire and provides advanced DI(Dependency Injection).
 
 ![image](https://user-images.githubusercontent.com/24886864/132739194-35142095-4292-4da3-8ecb-4a7cdcef1459.png)
+
+Features
+- IoC Container using Config(viper)
+- Lazy Loading
+- Eager Loading

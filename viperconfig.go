@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/bang9211/ossicones/utils"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -45,17 +44,17 @@ func (vc *ViperConfig) setFlags() {
 }
 
 func (vc *ViperConfig) preconfigForRead(configFilePath string) {
-	vc.viper.AddConfigPath(utils.GetFileDir(configFilePath))
-	ext := utils.GetFileExtension(configFilePath)
+	vc.viper.AddConfigPath(GetFileDir(configFilePath))
+	ext := GetFileExtension(configFilePath)
 	if ext == "conf" {
-		vc.viper.SetConfigName(utils.GetFileName(configFilePath))
+		vc.viper.SetConfigName(GetFileName(configFilePath))
 		vc.viper.SetConfigType("env")
 	} else {
-		supportedType := utils.IsContain(ext, viper.SupportedExts)
+		supportedType := IsContain(viper.SupportedExts, ext)
 		if supportedType {
 			vc.viper.SetConfigFile(configFilePath)
 		} else {
-			vc.viper.SetConfigName(utils.GetFileName(configFilePath))
+			vc.viper.SetConfigName(GetFileName(configFilePath))
 		}
 	}
 	vc.viper.AutomaticEnv()

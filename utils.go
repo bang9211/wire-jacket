@@ -79,7 +79,7 @@ func GetFileExtension(path string) string {
 	return ext
 }
 
-func IsContain(key string, list []string) bool {
+func IsContain(list []string, key string) bool {
 	for _, s := range list {
 		if s == key {
 			return true

@@ -15,6 +15,7 @@ type Module interface {
 type WireJacket struct {
 	config                Config
 	injectors             map[string]interface{}
+	eagerInjectors        map[string]interface{}
 	modules               map[string]Module
 	activatingModuleNames []string
 }
@@ -22,9 +23,10 @@ type WireJacket struct {
 // New creates empty WireJacket.
 func New() (*WireJacket, error) {
 	wj := &WireJacket{
-		config:    NewViperConfig(),
-		injectors: map[string]interface{}{},
-		modules:   map[string]Module{},
+		config:         NewViperConfig(),
+		injectors:      map[string]interface{}{},
+		eagerInjectors: map[string]interface{}{},
+		modules:        map[string]Module{},
 	}
 
 	return wj, nil
@@ -35,31 +37,26 @@ func NewWithInjectors(
 	injectors map[string]interface{},
 	eagerInjectors map[string]interface{}) (*WireJacket, error) {
 	wj := &WireJacket{
-		injectors: injectors,
-		modules:   map[string]Module{},
-		config:    NewViperConfig(),
+		injectors:      injectors,
+		eagerInjectors: eagerInjectors,
+		modules:        map[string]Module{},
+		config:         NewViperConfig(),
 	}
 	wj.activatingModuleNames = readActivatingModules(wj.config)
-
-	for moduleName, eagerInjector := range eagerInjectors {
-		if IsContain(wj.activatingModuleNames, moduleName) {
-			err := wj.loadModule(moduleName, eagerInjector)
-			if err != nil {
-				return nil, fmt.Errorf("[%s] %s", moduleName, err)
-			}
-		}
-	}
 
 	return wj, nil
 }
 
 func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error {
-	var err error
+	if wj.modules[moduleName] != nil {
+		return nil
+	}
 
 	method := reflect.ValueOf(injector)
 	methodType := method.Type()
-	dependencies, satisfied := wj.getDependencies(methodType)
-	if !satisfied {
+	dependencies := wj.getDependencies(methodType)
+	if dependencies == nil {
+		var err error
 		dependencies, err = wj.loadDependencies(moduleName, methodType)
 		if err != nil {
 			return err
@@ -76,24 +73,17 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 	return nil
 }
 
-func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
+func (wj *WireJacket) getDependencies(methodType reflect.Type) []reflect.Value {
 	dependencies := []reflect.Value{}
 	for i := 0; i < methodType.NumIn(); i++ {
 		dependencyType := methodType.In(i)
-		find := false
-		for _, module := range wj.modules {
-			moduleValue := reflect.ValueOf(module)
-			if moduleValue.CanConvert(dependencyType) {
-				dependencies = append(dependencies, moduleValue)
-				find = true
-				break
-			}
+		moduleValue := wj.findModuleValue(dependencyType)
+		if moduleValue == nil {
+			return nil
 		}
-		if !find {
-			return nil, false
-		}
+		dependencies = append(dependencies, *moduleValue)
 	}
-	return dependencies, true
+	return dependencies
 }
 
 func (wj *WireJacket) loadDependencies(
@@ -144,11 +134,11 @@ func (wj *WireJacket) getParamTypeList(methodType reflect.Type) []reflect.Type {
 	return typeList
 }
 
-func (wj *WireJacket) findModule(dependencyType reflect.Type) Module {
+func (wj *WireJacket) findModuleValue(dependencyType reflect.Type) *reflect.Value {
 	for _, module := range wj.modules {
 		moduleValue := reflect.ValueOf(module)
 		if moduleValue.CanConvert(dependencyType) {
-			return module
+			return &moduleValue
 		}
 	}
 	return nil
@@ -208,8 +198,8 @@ func (wj *WireJacket) loadAllModules() error {
 			method := reflect.ValueOf(wj.injectors[moduleName])
 			methodType := method.Type()
 
-			dependencies, satisfied := wj.getDependencies(methodType)
-			if satisfied {
+			dependencies := wj.getDependencies(methodType)
+			if dependencies != nil {
 				returnVal := method.Call(dependencies)
 				module, err := wj.checkInjectionResult(returnVal)
 				if err != nil {
@@ -220,7 +210,7 @@ func (wj *WireJacket) loadAllModules() error {
 			}
 		}
 		for _, activated := range activatedList {
-			NotActivatedList = RemoveElement(NotActivatedList, activated)
+			NotActivatedList = removeElement(NotActivatedList, activated)
 		}
 		tryCount++
 	}
@@ -273,17 +263,27 @@ func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) 
 }
 
 // DoWire
-func (wj *WireJacket) DoWire() {
-	// TODO
+func (wj *WireJacket) DoWire() error {
+	for moduleName, eagerInjector := range wj.eagerInjectors {
+		if isContain(wj.activatingModuleNames, moduleName) {
+			err := wj.loadModule(moduleName, eagerInjector)
+			if err != nil {
+				return fmt.Errorf("[%s] %s", moduleName, err)
+			}
+		}
+	}
+	return nil
 }
 
-// GetConfig
+// GetConfig returns config object.
 func (wj *WireJacket) GetConfig() Config {
 	return wj.config
 }
 
-// GetModule
+// GetModule returns module if exists.
+// Otherwise, it tries to create module using injector and returns.
 func (wj *WireJacket) GetModule(moduleName string) interface{} {
+
 	return wj.modules[moduleName]
 }
 

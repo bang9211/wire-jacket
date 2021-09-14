@@ -1,4 +1,4 @@
-package wirejacket
+package config
 
 import "time"
 

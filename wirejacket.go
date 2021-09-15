@@ -17,20 +17,22 @@ type Module interface {
 
 // WireJacket structure. the jacket of the wires(injectors).
 type WireJacket struct {
-	config                config.Config
-	injectors             map[string]interface{}
-	eagerInjectors        map[string]interface{}
-	modules               map[string]Module
-	activatingModuleNames []string
+	config                 config.Config
+	injectors              map[string]interface{}
+	eagerInjectors         map[string]interface{}
+	modules                map[string]Module
+	sortedModulesByCreated []Module
+	activatingModuleNames  []string
 }
 
 // New creates empty WireJacket.
 func New() (*WireJacket, error) {
 	wj := &WireJacket{
-		config:         config.NewViperConfig(),
-		injectors:      map[string]interface{}{},
-		eagerInjectors: map[string]interface{}{},
-		modules:        map[string]Module{},
+		config:                 config.NewViperConfig(),
+		injectors:              map[string]interface{}{},
+		eagerInjectors:         map[string]interface{}{},
+		modules:                map[string]Module{},
+		sortedModulesByCreated: []Module{},
 	}
 	wj.activatingModuleNames = readActivatingModules(wj.config)
 
@@ -42,10 +44,11 @@ func NewWithInjectors(
 	injectors map[string]interface{},
 	eagerInjectors map[string]interface{}) (*WireJacket, error) {
 	wj := &WireJacket{
-		injectors:      injectors,
-		eagerInjectors: eagerInjectors,
-		modules:        map[string]Module{},
-		config:         config.NewViperConfig(),
+		injectors:              injectors,
+		eagerInjectors:         eagerInjectors,
+		modules:                map[string]Module{},
+		config:                 config.NewViperConfig(),
+		sortedModulesByCreated: []Module{},
 	}
 	wj.activatingModuleNames = readActivatingModules(wj.config)
 
@@ -228,6 +231,7 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 
 	// set module
 	wj.modules[moduleName] = module
+	pushModule(&wj.sortedModulesByCreated, module)
 
 	return nil
 }
@@ -384,6 +388,7 @@ func (wj *WireJacket) loadAllModules() error {
 					return fmt.Errorf("[%s] %s", moduleName, err)
 				}
 				wj.modules[moduleName] = module
+				pushModule(&wj.sortedModulesByCreated, module)
 				activatedList = append(activatedList, moduleName)
 			}
 		}
@@ -431,15 +436,26 @@ func (wj *WireJacket) GetModuleByType(interfaceType interface{}) interface{} {
 
 // Close closes all the modules gracefully
 func (wj *WireJacket) Close() error {
-	// TODO
-
-	// find return type of eagerInjectors
-	// for _, injectors := range wj.eagerInjectors {
-	// find type of injector
-
-	// cast injector to type
-
-	// }
+	moduleLen := len(wj.sortedModulesByCreated)
+	for i := 0; i < moduleLen; i++ {
+		module := popModule(&wj.sortedModulesByCreated)
+		err := module.Close()
+		if err != nil {
+			log.Printf("failed to close module(%s) : %s", reflect.ValueOf(module).Type(), err)
+		}
+	}
 
 	return nil
+}
+
+func pushModule(modules *[]Module, module Module) {
+	*modules = append(*modules, module)
+}
+
+func popModule(modules *[]Module) Module {
+	ret := (*modules)[0]
+	if len(*modules) > 0 {
+		*modules = (*modules)[1:]
+	}
+	return ret
 }

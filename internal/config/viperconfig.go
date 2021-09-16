@@ -167,7 +167,11 @@ func (vc *ViperConfig) GetIntSlice(key string, defaultVal []int) []int {
 
 func (vc *ViperConfig) GetStringSlice(key string, defaultVal []string) []string {
 	if vc.viper.IsSet(key) {
-		return vc.viper.GetStringSlice(key)
+		ret := vc.viper.GetStringSlice(key)
+		if ret == nil {
+			return []string{}
+		}
+		return ret
 	}
 	return defaultVal
 }

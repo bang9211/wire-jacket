@@ -1,0 +1,8 @@
+{
+    "TEST_VIPER_CONFIG_STRINGMAPSLICE":{
+		"test1": ["testValue1-1", "testValue1-2", "testValue1-3"],
+		"test2": ["testValue2-1", "testValue2-2", "testValue3-3"],
+		"test3": ["testValue3-1", "testValue2-2", "testValue3-3"]
+    },
+    "TEST_VIPER_CONFIG_EMPTY_STRINGMAPSLICE":{}
+}

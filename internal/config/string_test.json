@@ -1,0 +1,12 @@
+{
+    "TEST_VIPER_CONFIG_STRING":"TEST text 1234 !@#$%^&*(),./ 안녕하세요",
+    "TEST_VIPER_CONFIG_BOOL":false,
+    "TEST_VIPER_CONFIG_INT":998877,
+    "TEST_VIPER_CONFIG_INTSLICE":[9, 9, 8, 8, 7, 7],
+    "TEST_VIPER_CONFIG_STRINGSLICE":["test1", "test2", "test3"],
+    "TEST_VIPER_CONFIG_STRINGMAP":{
+        "test1":"testValue",
+        "test2":998.877,
+        "test3":false
+    }
+}

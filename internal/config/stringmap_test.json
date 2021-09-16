@@ -1,0 +1,8 @@
+{
+    "TEST_VIPER_CONFIG_STRINGMAP":{
+        "test1":"testValue",
+        "test2":998.877,
+        "test3":false
+    },
+    "TEST_VIPER_CONFIG_EMPTY_STRINGMAP":{}
+}

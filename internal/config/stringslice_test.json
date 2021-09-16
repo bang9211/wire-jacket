@@ -1,0 +1,4 @@
+{
+    "TEST_VIPER_CONFIG_STRINGSLICE":["test1", "test2", "test3"],
+    "TEST_VIPER_CONFIG_EMPTY_STRINGSLICE":[]
+}

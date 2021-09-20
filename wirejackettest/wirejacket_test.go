@@ -1,4 +1,4 @@
-package wirejacket
+package wirejackettest
 
 import (
 	"testing"

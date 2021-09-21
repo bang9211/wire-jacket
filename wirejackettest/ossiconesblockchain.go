@@ -63,7 +63,7 @@ type OssiconesBlockchain struct {
 
 // GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(config config.Config) Blockchain {
+func GetOrCreateOssiconesBlockchain(config config.Config) Blockchain {
 	if obc == nil {
 		once.Do(func() {
 			obc = &OssiconesBlockchain{config: config}

@@ -1,7 +1,12 @@
+//go:build wireinject
+
 package wirejackettest
 
 import (
 	"github.com/bang9211/wire-jacket/internal/config"
+	"github.com/bang9211/wire-jacket/wirejackettest/defaultexplorerserver"
+	"github.com/bang9211/wire-jacket/wirejackettest/defaultrestapiserver"
+	"github.com/bang9211/wire-jacket/wirejackettest/ossiconesblockchain"
 	"github.com/google/wire"
 )
 
@@ -62,25 +67,25 @@ func InjectViperConfig() (config.Config, error) {
 }
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
-func InjectOssiconesBlockchain(config config.Config) (Blockchain, error) {
-	wire.Build(GetOrCreate)
+func InjectOssiconesBlockchain(config config.Config) (ossiconesblockchain.Blockchain, error) {
+	wire.Build(ossiconesblockchain.GetOrCreate)
 	return nil, nil
 }
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
 func InjectDefaultExplorerServer(
 	config config.Config,
-	blockchain Blockchain,
-) (ExplorerServer, error) {
-	wire.Build(GetOrCreate)
+	blockchain ossiconesblockchain.Blockchain,
+) (defaultexplorerserver.ExplorerServer, error) {
+	wire.Build(defaultexplorerserver.GetOrCreate)
 	return nil, nil
 }
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
 func InjectDefaultRESTAPIServer(
 	config config.Config,
-	blockchain Blockchain,
-) (RESTAPIServer, error) {
-	wire.Build(GetOrCreate)
+	blockchain ossiconesblockchain.Blockchain,
+) (defaultrestapiserver.RESTAPIServer, error) {
+	wire.Build(defaultrestapiserver.GetOrCreateDefault)
 	return nil, nil
 }

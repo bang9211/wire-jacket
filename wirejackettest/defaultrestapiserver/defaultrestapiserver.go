@@ -1,4 +1,4 @@
-package wirejackettest
+package defaultrestapiserver
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/bang9211/wire-jacket/internal/config"
+	"github.com/bang9211/wire-jacket/wirejackettest/ossiconesblockchain"
 	"github.com/gorilla/mux"
 )
 
@@ -24,7 +25,7 @@ const (
 )
 
 var drs *DefaultRESTAPIServer
-var drsOnce sync.Once
+var once sync.Once
 
 type defaultURL struct {
 	address string
@@ -62,18 +63,18 @@ type ErrorResponse struct {
 type DefaultRESTAPIServer struct {
 	config     config.Config
 	handler    *mux.Router
-	blockchain Blockchain
+	blockchain ossiconesblockchain.Blockchain
 	homePath   string
 	address    string
 }
 
 // GetOrCreate returns the existing singletone object of DefaultAPIServer.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(
+func GetOrCreateDefault(
 	config config.Config,
-	blocchain Blockchain) RESTAPIServer {
+	blocchain ossiconesblockchain.Blockchain) RESTAPIServer {
 	if drs == nil {
-		drsOnce.Do(func() {
+		once.Do(func() {
 			drs = &DefaultRESTAPIServer{
 				config:     config,
 				handler:    mux.NewRouter(),
@@ -91,19 +92,9 @@ func GetOrCreate(
 }
 
 func (d *DefaultRESTAPIServer) init() error {
-	var err error
-	// d.homePath, err = utils.GetOrSetHomePath()
-	if err != nil {
-		return err
-	}
 	host := d.config.GetString("ossicones_rest_api_server_host", defaultDRSHost)
 	port := d.config.GetInt("ossicones_rest_api_server_port", defaultDRSPort)
 	d.address = host + ":" + strconv.Itoa(port)
-
-	// d.handler.Use(jsonContentTypeMiddleware)
-	// d.handler.HandleFunc("/", d.documentation).Methods("GET")
-	// d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
-	// d.handler.HandleFunc("/blocks/{height:[0-9]+}", d.block).Methods("GET")
 
 	d.Serve()
 

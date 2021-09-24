@@ -3,7 +3,9 @@ package wirejacket
 import (
 	"fmt"
 	"log"
+	"os"
 	"reflect"
+	"strings"
 
 	"github.com/bang9211/wire-jacket/internal/config"
 	"github.com/bang9211/wire-jacket/internal/utils"
@@ -17,6 +19,7 @@ type Module interface {
 
 // WireJacket structure. the jacket of the wires(injectors).
 type WireJacket struct {
+	serviceName            string
 	config                 config.Config
 	injectors              map[string]interface{}
 	eagerInjectors         map[string]interface{}
@@ -25,9 +28,22 @@ type WireJacket struct {
 	activatingModuleNames  []string
 }
 
-// New creates empty WireJacket.
-func New() (*WireJacket, error) {
+// New creates empty WireJacket. serviceName uses as prefix of config.
+// Wirejacket's config can be overrided by envrionment variable.
+// So it needs unique serviceName to avoid collision.
+// By default, it uses {serviceName}.conf file for reading list of 
+// activating module.
+//
+// Example in {serviceName}.conf
+//
+// {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// 
+// If {serviceName}.conf file no exists, SetActivatingModules must be 
+// called to specify activating modules.
+// The list of activating module is used as key of injectors to call.
+func New(serviceName string) (*WireJacket, error) {
 	wj := &WireJacket{
+		serviceName:            serviceName,
 		config:                 config.NewViperConfig(),
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
@@ -40,10 +56,24 @@ func New() (*WireJacket, error) {
 }
 
 // NewWithInjectors creates WireJacket with injectors.
+// Wirejacket's config can be overrided by envrionment variable.
+// So it needs unique serviceName to avoid collision.
+// By default, it uses {serviceName}.conf file for reading list 
+// of activating module.
+//
+// Example in {serviceName}.conf
+//
+// {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// 
+// If {serviceName}.conf file no exists, SetActivatingModules must be 
+// called to specify activating modules.
+// The list of activating module is used as key of injectors to call.
 func NewWithInjectors(
+	serviceName string,
 	injectors map[string]interface{},
 	eagerInjectors map[string]interface{}) (*WireJacket, error) {
 	wj := &WireJacket{
+		serviceName:            serviceName,
 		injectors:              injectors,
 		eagerInjectors:         eagerInjectors,
 		modules:                map[string]Module{},
@@ -62,12 +92,19 @@ func readActivatingModules(config config.Config) []string {
 	}
 
 	activatingModuleNames := config.GetStringSlice(
-		"ossicones_activating_modules",
+		strings.ToLower(os.Args[0])+"_activating_modules",
 		[]string{},
 		// defaultActivatingModules[:], // array to slice
 	)
 
 	return activatingModuleNames
+}
+
+// SetActivatingModules sets case-insensitive list of module's name.
+// module's name is used as key of injector maps.
+// It can be overrided by value of {serviceName}_activating_modules in {serviceName}.conf file.
+func (w *WireJacket) SetActivatingModules(moduleNames []string) {
+	w.activatingModuleNames = moduleNames
 }
 
 // SetInjectors set injectors to inject lazily.

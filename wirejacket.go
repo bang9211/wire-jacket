@@ -28,19 +28,23 @@ type WireJacket struct {
 	activatingModuleNames  []string
 }
 
-// New creates empty WireJacket. serviceName uses as prefix of config.
+// New creates empty WireJacket. serviceName uses in config.
 // Wirejacket's config can be overrided by envrionment variable.
 // So it needs unique serviceName to avoid collision.
 // By default, it uses {serviceName}.conf file for reading list of
-// activating module.
+// activating module.(default format is .envfile)
 //
 // Example in {serviceName}.conf
 //
 // {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
 //
-// If {serviceName}.conf file no exists, SetActivatingModules must be
-// called to specify activating modules.
-// The list of activating module is used as key of injectors to call.
+// If {serviceName}.conf file no exists, SetActivatingModules
+// must be called to specify activating modules.
+// Or, you can specify file using '--config' tag. In case
+// file specified by '--config' tag, the file format can be
+// viper supported format(json, yaml, toml, ...).
+// The list of activating module is used as key of injectors
+// to call.
 func New(serviceName string) (*WireJacket, error) {
 	viperConfig := config.NewViperConfig(serviceName)
 	wj := &WireJacket{
@@ -60,16 +64,19 @@ func New(serviceName string) (*WireJacket, error) {
 // Wirejacket's config can be overrided by envrionment variable.
 // So it needs unique serviceName to avoid collision.
 // By default, it uses {serviceName}.conf file for reading list
-// of activating module.
+// activating module.(default format is .envfile)
 //
 // Example in {serviceName}.conf
 //
 // {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
 //
-// If {serviceName}.conf file no exists, SetActivatingModules must be
-// called to specify activating modules.
-// Or you can specify file name using '--config' tag.
-// The list of activating module is used as key of injectors to call.
+// If {serviceName}.conf file no exists, SetActivatingModules
+// must be called to specify activating modules.
+// Or, you can specify file using '--config' tag. In case
+// file specified by '--config' tag, the file format can be
+// viper supported format(json, yaml, toml, ...).
+// The list of activating module is used as key of injectors
+// to call.
 func NewWithInjectors(
 	serviceName string,
 	injectors map[string]interface{},
@@ -276,52 +283,43 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 	return nil
 }
 
-func (wj *WireJacket) getDependencies(moduleName string, injectorFuncType reflect.Type) ([]reflect.Value, error) {
+func (wj *WireJacket) getDependencies(
+	moduleName string,
+	injectorFuncType reflect.Type) ([]reflect.Value, error) {
 	dependencyTypeList := wj.getDependencyTypeList(injectorFuncType)
 
-	dependencies := wj.findDependencies(dependencyTypeList)
-	if dependencies == nil {
-		var err error
-		dependencies, err = wj.loadAndGetDependencies(moduleName, dependencyTypeList)
-		if err != nil {
-			return nil, err
-		}
+	dependencies, err := wj.loadAndGetDependencies(moduleName, dependencyTypeList)
+	if err != nil {
+		return nil, err
 	}
+
 	return dependencies, nil
 }
 
-func (wj *WireJacket) findDependencies(dependencyTypeList []reflect.Type) []reflect.Value {
+func (wj *WireJacket) loadAndGetDependencies(
+	moduleName string,
+	dependencyTypeList []reflect.Type) ([]reflect.Value, error) {
 	dependencies := []reflect.Value{}
-	for i := 0; i < len(dependencyTypeList); i++ {
-		dependencyType := dependencyTypeList[i]
-		moduleValue := wj.findModuleValue(dependencyType)
-		if moduleValue == nil {
-			return nil
-		}
-		dependencies = append(dependencies, *moduleValue)
-	}
-	return dependencies
-}
-
-func (wj *WireJacket) loadAndGetDependencies(moduleName string, dependencyTypeList []reflect.Type) ([]reflect.Value, error) {
-	var err error
-	dependencies := []reflect.Value{}
-
 	for _, dependencyType := range dependencyTypeList {
-		// find injector of dependency in injectors (return type check)
-		moduleName, injector := wj.findInjector(dependencyType)
-		if injector == nil {
-			return nil, fmt.Errorf("failed to find injector of dependency(%s)", moduleName)
-		}
+		dependencyPtr := wj.findDependency(dependencyType)
+		if dependencyPtr != nil {
+			dependencies = append(dependencies, *dependencyPtr)
+		} else {
+			// find injector to create dependency (return type check)
+			moduleName, injector := wj.findInjector(dependencyType)
+			if injector == nil {
+				return nil, fmt.Errorf("failed to find injector of dependency(%s)", moduleName)
+			}
 
-		// load module using injector
-		err = wj.loadModule(moduleName, injector)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load module of dependency(%s)", moduleName)
-		}
+			// load dependency using injector
+			err := wj.loadModule(moduleName, injector)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load module of dependency(%s)", moduleName)
+			}
 
-		// get module as dependency
-		dependencies = append(dependencies, reflect.ValueOf(wj.modules[moduleName]))
+			// add loaded dependency by injector
+			dependencies = append(dependencies, reflect.ValueOf(wj.modules[moduleName]))
+		}
 	}
 
 	return dependencies, nil
@@ -351,7 +349,7 @@ func (wj *WireJacket) getDependencyTypeList(injectorFuncType reflect.Type) []ref
 	return typeList
 }
 
-func (wj *WireJacket) findModuleValue(dependencyType reflect.Type) *reflect.Value {
+func (wj *WireJacket) findDependency(dependencyType reflect.Type) *reflect.Value {
 	for _, module := range wj.modules {
 		moduleValue := reflect.ValueOf(module)
 		if moduleValue.CanConvert(dependencyType) {

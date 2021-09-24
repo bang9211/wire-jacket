@@ -1,7 +1,7 @@
 package config
 
-func initTest() (Config, error) {
-	cfg := NewViperConfig()
+func initTest(serviceName string) (Config, error) {
+	cfg := NewViperConfig(serviceName)
 	return cfg, nil
 }
 

@@ -74,7 +74,7 @@ func TestImplementConfig(t *testing.T) {
 }
 
 func TestLoadDefault(t *testing.T) {
-	cfg, err := initTest()
+	cfg, err := initTest("default_test")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -99,7 +99,7 @@ func TestLoadDefault(t *testing.T) {
 func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestLoadJSON")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -124,7 +124,7 @@ func TestLoadJSON(t *testing.T) {
 func TestLoadYAML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.yaml")
-	cfg, err := initTest()
+	cfg, err := initTest("TestLoadYAML")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -149,7 +149,7 @@ func TestLoadYAML(t *testing.T) {
 func TestLoadTOML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.toml")
-	cfg, err := initTest()
+	cfg, err := initTest("TestLoadTOML")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -186,7 +186,7 @@ func TestGetBool(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/bool_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetBool")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -215,7 +215,7 @@ func TestGetString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/string_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetString")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -243,7 +243,7 @@ func TestGetInt(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetInt")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -271,7 +271,7 @@ func TestGetInt32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int32_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetInt32")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -299,7 +299,7 @@ func TestGetInt64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int64_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetInt64")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -327,7 +327,7 @@ func TestGetUint(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetUint")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -355,7 +355,7 @@ func TestGetUint32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint32_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetUint32")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -383,7 +383,7 @@ func TestGetUint64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint64_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetUint64")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -407,7 +407,7 @@ func TestGetFloat64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/float64_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetFloat64")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -431,7 +431,7 @@ func TestGetTime(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/time_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetTime")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -455,7 +455,7 @@ func TestGetDuration(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/duration_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetDuration")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -480,7 +480,7 @@ func TestGetIntSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/intslice_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetIntSlice")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -505,7 +505,7 @@ func TestGetStringSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringslice_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetStringSlice")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -535,7 +535,7 @@ func TestGetStringMap(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmap_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetStringMap")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -565,7 +565,7 @@ func TestGetStringMapString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapstring_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetStringMapString")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -595,7 +595,7 @@ func TestGetStringMapSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapslice_test.json")
-	cfg, err := initTest()
+	cfg, err := initTest("TestGetStringMapSlice")
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
 
@@ -607,7 +607,7 @@ func TestGetStringMapSlice(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	cfg, err := initTest()
+	cfg, err := initTest("TestClose")
 	NoError(t, err, "Failed to initTest()")
 	NoError(t, cfg.Close(), "Failed to close ViperConfig")
 }

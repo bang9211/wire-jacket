@@ -31,24 +31,25 @@ type WireJacket struct {
 // New creates empty WireJacket. serviceName uses as prefix of config.
 // Wirejacket's config can be overrided by envrionment variable.
 // So it needs unique serviceName to avoid collision.
-// By default, it uses {serviceName}.conf file for reading list of 
+// By default, it uses {serviceName}.conf file for reading list of
 // activating module.
 //
 // Example in {serviceName}.conf
 //
 // {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
-// 
-// If {serviceName}.conf file no exists, SetActivatingModules must be 
+//
+// If {serviceName}.conf file no exists, SetActivatingModules must be
 // called to specify activating modules.
 // The list of activating module is used as key of injectors to call.
 func New(serviceName string) (*WireJacket, error) {
+	viperConfig := config.NewViperConfig(serviceName)
 	wj := &WireJacket{
 		serviceName:            serviceName,
-		config:                 config.NewViperConfig(),
+		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
-		modules:                map[string]Module{},
-		sortedModulesByCreated: []Module{},
+		modules:                map[string]Module{"viperconfig": viperConfig},
+		sortedModulesByCreated: []Module{viperConfig},
 	}
 	wj.activatingModuleNames = readActivatingModules(wj.config)
 
@@ -58,27 +59,29 @@ func New(serviceName string) (*WireJacket, error) {
 // NewWithInjectors creates WireJacket with injectors.
 // Wirejacket's config can be overrided by envrionment variable.
 // So it needs unique serviceName to avoid collision.
-// By default, it uses {serviceName}.conf file for reading list 
+// By default, it uses {serviceName}.conf file for reading list
 // of activating module.
 //
 // Example in {serviceName}.conf
 //
 // {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
-// 
-// If {serviceName}.conf file no exists, SetActivatingModules must be 
+//
+// If {serviceName}.conf file no exists, SetActivatingModules must be
 // called to specify activating modules.
+// Or you can specify file name using '--config' tag.
 // The list of activating module is used as key of injectors to call.
 func NewWithInjectors(
 	serviceName string,
 	injectors map[string]interface{},
 	eagerInjectors map[string]interface{}) (*WireJacket, error) {
+	viperConfig := config.NewViperConfig(serviceName)
 	wj := &WireJacket{
 		serviceName:            serviceName,
 		injectors:              injectors,
 		eagerInjectors:         eagerInjectors,
-		modules:                map[string]Module{},
-		config:                 config.NewViperConfig(),
-		sortedModulesByCreated: []Module{},
+		config:                 config.NewViperConfig(serviceName),
+		modules:                map[string]Module{"viperconfig": viperConfig},
+		sortedModulesByCreated: []Module{viperConfig},
 	}
 	wj.activatingModuleNames = readActivatingModules(wj.config)
 

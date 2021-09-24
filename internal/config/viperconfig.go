@@ -11,31 +11,29 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	defaultConfigFile = "ossicones.conf" //.env
-)
-
 type ViperConfig struct {
 	viper *viper.Viper
 	flag  *flag.FlagSet
 }
 
 // NewViperConfig returns new ViperConfig.
-func NewViperConfig() Config {
+// serviceName uses as default config file {serviceName}.conf.
+func NewViperConfig(serviceName string) Config {
 	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
-	vc.init()
+	vc.init(serviceName)
 	return &vc
 }
 
-func (vc *ViperConfig) init() {
-	vc.setFlags()
+func (vc *ViperConfig) init(serviceName string) {
+	defaultConfigFile := serviceName + ".conf"
+	vc.setFlags(defaultConfigFile)
 	// only use 'config' flag for reading config file path
 	configFilePath := vc.GetString("config", defaultConfigFile)
 	vc.preconfigForRead(configFilePath)
 	vc.Load()
 }
 
-func (vc *ViperConfig) setFlags() {
+func (vc *ViperConfig) setFlags(defaultConfigFile string) {
 	vc.flag.String("config", defaultConfigFile,
 		"Config file(envfile)[default : ossicones.conf]")
 

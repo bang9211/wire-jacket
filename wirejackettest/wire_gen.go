@@ -15,12 +15,6 @@ import (
 
 // Injectors from wire.go:
 
-// InjectViperConfig injects dependencies and inits of Config.
-func InjectViperConfig() (config.Config, error) {
-	configConfig := config.NewViperConfig()
-	return configConfig, nil
-}
-
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
 func InjectOssiconesBlockchain(config2 config.Config) (ossiconesblockchain.Blockchain, error) {
 	blockchain := ossiconesblockchain.GetOrCreate(config2)
@@ -50,7 +44,6 @@ func InjectDefaultRESTAPIServer(config2 config.Config, blockchain ossiconesblock
 // Examples :
 //
 //	var injectors = map[string]interface{}{
-// 		"viperconfig": 			InjectViperConfig,
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
@@ -60,7 +53,6 @@ func InjectDefaultRESTAPIServer(config2 config.Config, blockchain ossiconesblock
 // 	}
 //
 var injectors = map[string]interface{}{
-	"viperconfig":         InjectViperConfig,
 	"ossiconesblockchain": InjectOssiconesBlockchain,
 }
 

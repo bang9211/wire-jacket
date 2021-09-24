@@ -1,4 +1,5 @@
 //go:build wireinject
+// +build wireinject
 
 package wirejackettest
 
@@ -19,7 +20,6 @@ import (
 // Examples :
 //
 //	var injectors = map[string]interface{}{
-// 		"viperconfig": 			InjectViperConfig,
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
@@ -29,7 +29,6 @@ import (
 // 	}
 //
 var injectors = map[string]interface{}{
-	"viperconfig":         InjectViperConfig,
 	"ossiconesblockchain": InjectOssiconesBlockchain,
 }
 
@@ -59,12 +58,6 @@ var eagerInjectors = map[string]interface{}{
 // - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain {}
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //
-
-// InjectViperConfig injects dependencies and inits of Config.
-func InjectViperConfig() (config.Config, error) {
-	wire.Build(config.NewViperConfig)
-	return nil, nil
-}
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
 func InjectOssiconesBlockchain(config config.Config) (ossiconesblockchain.Blockchain, error) {

@@ -239,6 +239,15 @@ func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) 
 // DoWire does wiring of wires(injectors).
 // It calls eagerInjectors as finding(if no exists, loading) and injecting dependencies.
 func (wj *WireJacket) DoWire() error {
+	if len(wj.getInjectors()) == 0 {
+		return fmt.Errorf("no injectors to wire")
+	}
+	if len(wj.eagerInjectors) == 0 {
+		return fmt.Errorf("no eager injectors to wire")
+	}
+	if len(wj.activatingModuleNames) == 0 {
+		return fmt.Errorf("no activating modules to wire")
+	}
 	for moduleName, eagerInjector := range wj.eagerInjectors {
 		if utils.IsContain(wj.activatingModuleNames, moduleName) {
 			err := wj.loadModule(moduleName, eagerInjector)

@@ -3,7 +3,6 @@ package wirejacket
 import (
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"strings"
 
@@ -55,7 +54,8 @@ func New(serviceName string) (*WireJacket, error) {
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
-	wj.activatingModuleNames = readActivatingModules(wj.config)
+	wj.activatingModuleNames = wj.readActivatingModules()
+	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 
 	return wj, nil
 }
@@ -90,19 +90,20 @@ func NewWithInjectors(
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
-	wj.activatingModuleNames = readActivatingModules(wj.config)
+	wj.activatingModuleNames = wj.readActivatingModules()
+	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 
 	return wj, nil
 }
 
-func readActivatingModules(config config.Config) []string {
-	err := config.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+func (wj *WireJacket) readActivatingModules() []string {
+	// err := config.Load()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	activatingModuleNames := config.GetStringSlice(
-		strings.ToLower(os.Args[0])+"_activating_modules",
+	activatingModuleNames := wj.config.GetStringSlice(
+		strings.ToLower(wj.serviceName)+"_activating_modules",
 		[]string{},
 		// defaultActivatingModules[:], // array to slice
 	)
@@ -113,8 +114,9 @@ func readActivatingModules(config config.Config) []string {
 // SetActivatingModules sets case-insensitive list of module's name.
 // module's name is used as key of injector maps.
 // It can be overrided by value of {serviceName}_activating_modules in {serviceName}.conf file.
-func (w *WireJacket) SetActivatingModules(moduleNames []string) {
-	w.activatingModuleNames = moduleNames
+func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
+	wj.activatingModuleNames = moduleNames
+	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 }
 
 // SetInjectors set injectors to inject lazily.
@@ -245,15 +247,10 @@ func (wj *WireJacket) DoWire() error {
 	if len(wj.eagerInjectors) == 0 {
 		return fmt.Errorf("no eager injectors to wire")
 	}
-	if len(wj.activatingModuleNames) == 0 {
-		return fmt.Errorf("no activating modules to wire")
-	}
 	for moduleName, eagerInjector := range wj.eagerInjectors {
-		if utils.IsContain(wj.activatingModuleNames, moduleName) {
-			err := wj.loadModule(moduleName, eagerInjector)
-			if err != nil {
-				return fmt.Errorf("[%s] %s", moduleName, err)
-			}
+		err := wj.loadModule(moduleName, eagerInjector)
+		if err != nil {
+			return fmt.Errorf("[%s] %s", moduleName, err)
 		}
 	}
 
@@ -269,6 +266,9 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 	//already exists
 	if wj.modules[moduleName] != nil {
 		return nil
+	}
+	if !utils.IsContain(wj.activatingModuleNames, moduleName) {
+		return fmt.Errorf("no activating module name for injector(%s)", moduleName)
 	}
 
 	// get dependencies
@@ -359,10 +359,12 @@ func (wj *WireJacket) getDependencyTypeList(injectorFuncType reflect.Type) []ref
 }
 
 func (wj *WireJacket) findDependency(dependencyType reflect.Type) *reflect.Value {
-	for _, module := range wj.modules {
-		moduleValue := reflect.ValueOf(module)
-		if moduleValue.CanConvert(dependencyType) {
-			return &moduleValue
+	for moduleName, module := range wj.modules {
+		if utils.IsContain(wj.activatingModuleNames, moduleName) {
+			moduleValue := reflect.ValueOf(module)
+			if moduleValue.CanConvert(dependencyType) {
+				return &moduleValue
+			}
 		}
 	}
 	return nil

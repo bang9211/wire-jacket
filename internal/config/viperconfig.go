@@ -12,20 +12,21 @@ import (
 )
 
 type ViperConfig struct {
-	viper *viper.Viper
-	flag  *flag.FlagSet
+	viper       *viper.Viper
+	flag        *flag.FlagSet
+	serviceName string
 }
 
 // NewViperConfig returns new ViperConfig.
 // serviceName uses as default config file {serviceName}.conf.
 func NewViperConfig(serviceName string) Config {
-	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
-	vc.init(serviceName)
+	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError), serviceName: serviceName}
+	vc.init()
 	return &vc
 }
 
-func (vc *ViperConfig) init(serviceName string) {
-	defaultConfigFile := serviceName + ".conf"
+func (vc *ViperConfig) init() {
+	defaultConfigFile := vc.serviceName + ".conf"
 	vc.setFlags(defaultConfigFile)
 	// only use 'config' flag for reading config file path
 	configFilePath := vc.GetString("config", defaultConfigFile)
@@ -35,7 +36,7 @@ func (vc *ViperConfig) init(serviceName string) {
 
 func (vc *ViperConfig) setFlags(defaultConfigFile string) {
 	vc.flag.String("config", defaultConfigFile,
-		"Config file(envfile)[default : ossicones.conf]")
+		"Config file(envfile)[default : "+vc.serviceName+".conf]")
 
 	pflag.CommandLine.AddGoFlagSet(vc.flag)
 	pflag.Parse()

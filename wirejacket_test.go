@@ -14,8 +14,8 @@ var emptyInjectors = map[string]interface{}{}
 var emptyEagerInjectors = map[string]interface{}{}
 
 func TestWireJacketDefaultConfigCase(t *testing.T) {
-	// ossicones.conf(.envfile)
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	// test.conf(.envfile)
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	err = wj.DoWire()
@@ -27,9 +27,9 @@ func TestWireJacketDefaultConfigCase(t *testing.T) {
 
 func TestWireJacketSpecifiedConfigCase(t *testing.T) {
 	os.Args = append(os.Args, "--config")
-	os.Args = append(os.Args, "ossicones.json")
-	// ossicones.json
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	os.Args = append(os.Args, "test.json")
+	// test.json
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	err = wj.DoWire()
@@ -60,7 +60,7 @@ func TestWireJacketNoConfigCase(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	wj, err := New("ossicones")
+	wj, err := New("test")
 	assert.NoError(t, err, "Failed to New()")
 
 	// no wire.Injectors to wire
@@ -110,7 +110,7 @@ func TestNewNoConfigCase(t *testing.T) {
 }
 
 func TestNewWithEmptyInjectors(t *testing.T) {
-	wj, err := NewWithInjectors("ossicones", emptyInjectors, emptyEagerInjectors)
+	wj, err := NewWithInjectors("test", emptyInjectors, emptyEagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	// no wire.Injectors to wire
@@ -215,7 +215,7 @@ func TestSetInjectors(t *testing.T) {
 }
 
 func TestSetEagerInjectors(t *testing.T) {
-	wj, err := New("ossicones")
+	wj, err := New("test")
 	assert.NoError(t, err, "Failed to New()")
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
@@ -233,7 +233,7 @@ func TestSetEagerInjectors(t *testing.T) {
 }
 
 func TestAddInjector(t *testing.T) {
-	wj, err := New("ossicones")
+	wj, err := New("test")
 	assert.NoError(t, err, "Failed to New()")
 
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
@@ -251,7 +251,7 @@ func TestAddInjector(t *testing.T) {
 }
 
 func TestAddEagerInjector(t *testing.T) {
-	wj, err := New("ossicones")
+	wj, err := New("test")
 	assert.NoError(t, err, "Failed to New()")
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
@@ -297,7 +297,7 @@ func TestDoWire(t *testing.T) {
 }
 
 func TestGetConfig(t *testing.T) {
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	config := wj.GetConfig()
@@ -309,7 +309,7 @@ func TestGetConfig(t *testing.T) {
 }
 
 func TestGetModule(t *testing.T) {
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	viperconfig := wj.GetModule("viperconfig")
@@ -345,7 +345,7 @@ func TestGetModule(t *testing.T) {
 }
 
 func TestGetModuleByType(t *testing.T) {
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	viperconfig := wj.GetModuleByType((*config.Config)(nil))
@@ -383,7 +383,7 @@ func TestGetModuleByType(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	wj, err := NewWithInjectors("ossicones", wire.Injectors, wire.EagerInjectors)
+	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
 	assert.NoError(t, err, "Failed to NewWithInjectors()")
 
 	err = wj.Close()

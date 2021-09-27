@@ -1,5 +1,5 @@
 {
-    "ossicones_activating_modules":[
+    "test_activating_modules":[
         "ossiconesblockchain", 
         "viperconfig",
         "defaultexplorerserver",

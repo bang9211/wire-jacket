@@ -234,10 +234,10 @@ func TestGetInt(t *testing.T) {
 		expected      int
 	}{
 		{"Reading int value", "TEST_VIPER_CONFIG_INT", defaultIntVal, 998877},
-		{"Reading int max value", "TEST_VIPER_CONFIG_MAX_INT", defaultIntVal, math.MaxInt},
+		// {"Reading int max value", "TEST_VIPER_CONFIG_MAX_INT", defaultIntVal, math.MaxInt},
 		{"Reading int min value", "TEST_VIPER_CONFIG_MIN_INT", defaultIntVal, math.MinInt},
 		// {"Reading int over value", "TEST_VIPER_CONFIG_OVER_INT", defaultIntVal, math.MaxInt},
-		// {"Reading int under value", "TEST_VIPER_CONFIG_UNDER_INT", defaultIntVal, math.MinInt},
+		{"Reading int under value", "TEST_VIPER_CONFIG_UNDER_INT", defaultIntVal, math.MinInt},
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultIntVal, defaultIntVal},
 	}
 

@@ -1,9 +1,6 @@
 package wire
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"strconv"
 	"sync"
 
@@ -28,39 +25,6 @@ const (
 var drs *DefaultRESTAPIServer
 var drsOnce sync.Once
 
-type defaultURL struct {
-	address string
-	path    string
-}
-
-func (u *defaultURL) String() string {
-	return u.path
-}
-
-func (u *defaultURL) MarshalText() ([]byte, error) {
-	url := fmt.Sprintf("%s%s", u.address, u.path)
-	return []byte(url), nil
-}
-
-type urlDescription struct {
-	URL         defaultURL `json:"url"`
-	Method      string     `json:"method"`
-	Description string     `json:"description"`
-	Payload     string     `json:"payload,omitempty"`
-}
-
-func (u urlDescription) String() string {
-	return ""
-}
-
-type AddBlockBody struct {
-	Message string
-}
-
-type ErrorResponse struct {
-	ErrorMessage string `json:"errorMessage"`
-}
-
 type DefaultRESTAPIServer struct {
 	config     config.Config
 	handler    *mux.Router
@@ -81,35 +45,21 @@ func GetOrCreateDefaultRESTAPIServer(
 				handler:    mux.NewRouter(),
 				blockchain: blocchain,
 			}
+			host := drs.config.GetString("ossicones_restapi_server_host", defaultDRSHost)
+			port := drs.config.GetInt("ossicones_restapi_server_port", defaultDRSPort)
+			drs.address = host + ":" + strconv.Itoa(port)
+			drs.Serve()
 		})
-		if drs == nil {
-			return nil
-		}
-		err := drs.init()
-		if err != nil {
-			drs = nil
-			return nil
-		}
 	}
 
 	return drs
 }
 
-func (d *DefaultRESTAPIServer) init() error {
-	host := d.config.GetString("ossicones_rest_api_server_host", defaultDRSHost)
-	port := d.config.GetInt("ossicones_rest_api_server_port", defaultDRSPort)
-	d.address = host + ":" + strconv.Itoa(port)
-
-	d.Serve()
-
-	return nil
-}
-
 func (d *DefaultRESTAPIServer) Serve() {
-	go func() {
-		fmt.Printf("Listening REST API Server on %s\n", d.address)
-		log.Fatal(http.ListenAndServe(d.address, d.handler))
-	}()
+	// go func() {
+	// 	fmt.Printf("Listening REST API Server on %s\n", d.address)
+	// 	log.Fatal(http.ListenAndServe(d.address, d.handler))
+	// }()
 }
 
 func (d *DefaultRESTAPIServer) GetPaths() []string {

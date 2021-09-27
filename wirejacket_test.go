@@ -68,10 +68,6 @@ func TestNew(t *testing.T) {
 	assert.Error(t, err)
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
 	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 
@@ -91,10 +87,6 @@ func TestNewNoConfigCase(t *testing.T) {
 	assert.Error(t, err)
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
 	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 	wj.SetActivatingModules([]string{
@@ -118,10 +110,6 @@ func TestNewWithEmptyInjectors(t *testing.T) {
 	assert.Error(t, err)
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
 	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 
@@ -141,10 +129,6 @@ func TestNewWithEmptyInjectorsNoConfigCase(t *testing.T) {
 	assert.Error(t, err)
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
 	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 	wj.SetActivatingModules([]string{
@@ -219,10 +203,6 @@ func TestSetEagerInjectors(t *testing.T) {
 	assert.NoError(t, err, "Failed to New()")
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.SetEagerInjectors(wire.EagerInjectors)
 
 	err = wj.DoWire()
@@ -255,10 +235,6 @@ func TestAddEagerInjector(t *testing.T) {
 	assert.NoError(t, err, "Failed to New()")
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
 	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
 	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 
@@ -278,12 +254,31 @@ func TestDoWire(t *testing.T) {
 	assert.Error(t, err)
 
 	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	// no eager wire.Injectors to wire
+	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
+	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.SetActivatingModules([]string{
+		"ossiconesblockchain",
+		"defaultexplorerserver",
+		"defaultrestapiserver",
+	})
+	err = wj.DoWire()
+	assert.NoError(t, err, "Failed to DoWire()")
+
+	err = wj.Close()
+	assert.NoError(t, err, "Failed to Close()")
+}
+
+func TestDoWireWithoutEagerInjectors(t *testing.T) {
+	wj, err := New("no_exist_service")
+	assert.NoError(t, err, "Failed to New()")
+
+	// no wire.Injectors to wire
 	err = wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
+	wj.AddInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
+	wj.AddInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
 	wj.SetActivatingModules([]string{
 		"ossiconesblockchain",
 		"defaultexplorerserver",

@@ -1,8 +1,6 @@
 package wire
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -46,35 +44,21 @@ func GetOrCreateDefaultExplorerServer(
 				handler:    http.NewServeMux(),
 				blockchain: blocchain,
 			}
+			host := dhs.config.GetString("ossicones_explorer_server_host", defaultDHSHost)
+			port := dhs.config.GetInt("ossicones_explorer_server_port", defaultDHSPort)
+			dhs.address = host + ":" + strconv.Itoa(port)
+			dhs.Serve()
 		})
-		if dhs == nil {
-			return nil
-		}
-		err := dhs.init()
-		if err != nil {
-			dhs = nil
-			return nil
-		}
 	}
 
 	return dhs
 }
 
-func (d *DefaultExplorerServer) init() error {
-	host := d.config.GetString("ossicones_explorer_server_host", defaultDHSHost)
-	port := d.config.GetInt("ossicones_explorer_server_port", defaultDHSPort)
-	d.address = host + ":" + strconv.Itoa(port)
-
-	d.Serve()
-
-	return nil
-}
-
 func (d *DefaultExplorerServer) Serve() {
-	go func() {
-		fmt.Printf("Listening Explorer Server on %s\n", d.address)
-		log.Fatal(http.ListenAndServe(d.address, d.handler))
-	}()
+	// go func() {
+	// 	fmt.Printf("Listening Explorer Server on %s\n", d.address)
+	// 	log.Fatal(http.ListenAndServe(d.address, d.handler))
+	// }()
 }
 
 func (d *DefaultExplorerServer) GetAllBlocks() []interface{} {

@@ -16,6 +16,20 @@ Features
 - Eager Loading
 
 
+## Why wire-jacket needs?
+google/wire works statically because it performs DI at compile-time.
+This approach is great for debugging, but it has some drawbacks.
+
+### 1. Absence of IoC (Inversion of Control) Container
+
+Most go DI libraries, including google/wire, do not have an IoC container. IoC Container makes it easy to version up and replace modules. You can also make a Plan B and keep it. DB Skip mode that does not use DB or emergency processing mode that does not actually connect with other nodes can be applied by changing the activation module and restarting.
+
+For example, if you use the MySQL DB implementation in your app and want to replace the implementation with MongoDB, you don't need to change the code, just change the string from MySQL to MongoDB in the IoC Container.
+
+### 2. Graceful handling of modules
+You can Gracefully write functions that need to call functions on every singleton instance like Close , Reload , etc.
+
+
 [doc-img]: http://img.shields.io/badge/GoDoc-Reference-blue.svg
 [doc]: https://pkg.go.dev/github.com/bang9211/wire-jacket
 

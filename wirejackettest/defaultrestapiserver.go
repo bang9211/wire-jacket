@@ -1,4 +1,4 @@
-package defaultrestapiserver
+package wirejackettest
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/bang9211/wire-jacket/internal/config"
-	"github.com/bang9211/wire-jacket/wirejackettest/ossiconesblockchain"
 	"github.com/gorilla/mux"
 )
 
@@ -25,7 +24,7 @@ const (
 )
 
 var drs *DefaultRESTAPIServer
-var once sync.Once
+var drsOnce sync.Once
 
 type defaultURL struct {
 	address string
@@ -63,24 +62,27 @@ type ErrorResponse struct {
 type DefaultRESTAPIServer struct {
 	config     config.Config
 	handler    *mux.Router
-	blockchain ossiconesblockchain.Blockchain
+	blockchain Blockchain
 	homePath   string
 	address    string
 }
 
 // GetOrCreate returns the existing singletone object of DefaultAPIServer.
 // Otherwise, it creates and returns the object.
-func GetOrCreateDefault(
+func GetOrCreateDefaultRESTAPIServer(
 	config config.Config,
-	blocchain ossiconesblockchain.Blockchain) RESTAPIServer {
+	blocchain Blockchain) RESTAPIServer {
 	if drs == nil {
-		once.Do(func() {
+		drsOnce.Do(func() {
 			drs = &DefaultRESTAPIServer{
 				config:     config,
 				handler:    mux.NewRouter(),
 				blockchain: blocchain,
 			}
 		})
+		if drs == nil {
+			return nil
+		}
 		err := drs.init()
 		if err != nil {
 			drs = nil
@@ -109,6 +111,6 @@ func (d *DefaultRESTAPIServer) Serve() {
 }
 
 func (d *DefaultRESTAPIServer) Close() error {
-	drs = nil
+	// drs = nil
 	return nil
 }

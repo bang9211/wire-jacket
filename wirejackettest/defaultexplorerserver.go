@@ -1,4 +1,4 @@
-package defaultexplorerserver
+package wirejackettest
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/bang9211/wire-jacket/internal/config"
-	"github.com/bang9211/wire-jacket/wirejackettest/ossiconesblockchain"
 )
 
 type ExplorerServer interface {
@@ -24,28 +23,31 @@ const (
 )
 
 var dhs *DefaultExplorerServer
-var once sync.Once
+var dhsOnce sync.Once
 
 type DefaultExplorerServer struct {
 	config     config.Config
 	handler    *http.ServeMux
-	blockchain ossiconesblockchain.Blockchain
+	blockchain Blockchain
 	address    string
 }
 
 // GetOrCreate returns the existing singletone object of DefaultHTTPServer.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(
+func GetOrCreateDefaultExplorerServer(
 	config config.Config,
-	blocchain ossiconesblockchain.Blockchain) ExplorerServer {
+	blocchain Blockchain) ExplorerServer {
 	if dhs == nil {
-		once.Do(func() {
+		dhsOnce.Do(func() {
 			dhs = &DefaultExplorerServer{
 				config:     config,
 				handler:    http.NewServeMux(),
 				blockchain: blocchain,
 			}
 		})
+		if dhs == nil {
+			return nil
+		}
 		err := dhs.init()
 		if err != nil {
 			dhs = nil
@@ -74,6 +76,6 @@ func (d *DefaultExplorerServer) Serve() {
 }
 
 func (d *DefaultExplorerServer) Close() error {
-	dhs = nil
+	// dhs = nil
 	return nil
 }

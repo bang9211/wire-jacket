@@ -1,4 +1,4 @@
-package ossiconesblockchain
+package wirejackettest
 
 import (
 	"crypto/sha256"
@@ -12,7 +12,7 @@ import (
 const defaultGenesisBlockData = "Genesis OssiconesBlock"
 
 var obc *OssiconesBlockchain
-var once sync.Once
+var obcOnce sync.Once
 
 type Block interface {
 	// CalculateHash calculates hash using sha256.
@@ -63,9 +63,9 @@ type OssiconesBlockchain struct {
 
 // GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(config config.Config) Blockchain {
+func GetOrCreateOssiconesBlockchain(config config.Config) Blockchain {
 	if obc == nil {
-		once.Do(func() {
+		obcOnce.Do(func() {
 			obc = &OssiconesBlockchain{config: config}
 			data := config.GetString(
 				"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",

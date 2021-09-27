@@ -39,7 +39,7 @@ You can Gracefully write functions that need to call functions on every singleto
 [ci-img]: https://github.com/bang9211/wire-jacket/actions/workflows/go.yml/badge.svg
 [ci]: https://github.com/bang9211/wire-jacket/actions/workflows/go.yml
 
-[cov-img]: https://codecov.io/gh/bang9211/wire-jacket/branch/master/graph/badge.svg
+[cov-img]: https://codecov.io/gh/bang9211/wire-jacket/branch/main/graph/badge.svg
 [cov]: https://codecov.io/gh/bang9211/wire-jacket/branch/main
 
 [report-card-img]: https://goreportcard.com/badge/github.com/bang9211/wire-jacket

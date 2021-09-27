@@ -97,11 +97,6 @@ func NewWithInjectors(
 }
 
 func (wj *WireJacket) readActivatingModules() []string {
-	// err := config.Load()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	activatingModuleNames := wj.config.GetStringSlice(
 		strings.ToLower(wj.serviceName)+"_activating_modules",
 		[]string{},
@@ -119,7 +114,7 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 }
 
-// SetInjectors set injectors to inject lazily.
+// SetInjectors sets injectors to inject lazily.
 // Wire has two basic concepts: providers and injectors.
 // WireJacket maps injector to module_name and injector as a key-value pairs.
 // The module_name can be found in the config file.
@@ -159,7 +154,7 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
 	wj.injectors = injectors
 }
 
-// SetEagerInjectors set injectors to inject eagerly.
+// SetEagerInjectors sets injectors to inject eagerly.
 // Wire has two basic concepts: providers and injectors.
 // WireJacket maps injector to module_name and injector as a key-value pairs.
 // The module_name can be found in the config file.
@@ -224,14 +219,14 @@ func (wj *WireJacket) getInjectors() map[string]interface{} {
 	return injectors
 }
 
-// AddInjector add injector function to the lazy injection list.
+// AddInjector adds injector function to the lazy injection list.
 func (wj *WireJacket) AddInjector(moduleName string, injector interface{}) {
 	if reflect.TypeOf(injector).Kind() == reflect.Func {
 		wj.injectors[moduleName] = injector
 	}
 }
 
-// AddInjector add injector function to the eager injection list.
+// AddInjector adds injector function to the eager injection list.
 func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) {
 	if reflect.TypeOf(injector).Kind() == reflect.Func {
 		wj.eagerInjectors[moduleName] = injector
@@ -252,11 +247,6 @@ func (wj *WireJacket) DoWire() error {
 		if err != nil {
 			return fmt.Errorf("[%s] %s", moduleName, err)
 		}
-	}
-
-	// if eagerInjectors no exists, wire all.
-	if len(wj.eagerInjectors) == 0 {
-		wj.loadAllModules()
 	}
 
 	return nil
@@ -458,6 +448,10 @@ func (wj *WireJacket) GetConfig() config.Config {
 // GetModule finds module using moduleName and returns module if exists.
 // If no exists, it tries to create module using injector and returns.
 func (wj *WireJacket) GetModule(moduleName string) interface{} {
+	module := wj.modules[moduleName]
+	if module != nil {
+		return module
+	}
 	injector := wj.getInjector(moduleName)
 	if injector == nil {
 		return nil
@@ -467,9 +461,18 @@ func (wj *WireJacket) GetModule(moduleName string) interface{} {
 	return wj.modules[moduleName]
 }
 
-// GetModuleByType finds module using interfaceType and returns module if exists.
+// GetModuleByType finds module using interfaceType(pointer of interface)
+// and returns module if exists.
+//
+// Example (process_name=ossicones) :
+//
+// config := wj.GetModuleByType((*config.Config)(nil))
+//
 // If no exists, it tries to create module using injector and returns.
 func (wj *WireJacket) GetModuleByType(interfaceType interface{}) interface{} {
+	if interfaceType == nil {
+		return nil
+	}
 	moduleType := reflect.TypeOf(interfaceType).Elem()
 	moduleName, injector := wj.findInjector(moduleType)
 	wj.loadModule(moduleName, injector)

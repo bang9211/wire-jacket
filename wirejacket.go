@@ -16,12 +16,12 @@ type Module interface {
 	Close() error
 }
 
-// WireJacket structure. the jacket of the wires(injectors).
+// WireJacket structure. the jacket of the wires(Injectors).
 type WireJacket struct {
 	serviceName            string
 	config                 config.Config
-	injectors              map[string]interface{}
-	eagerInjectors         map[string]interface{}
+	Injectors              map[string]interface{}
+	EagerInjectors         map[string]interface{}
 	modules                map[string]Module
 	sortedModulesByCreated []Module
 	activatingModuleNames  []string
@@ -42,15 +42,15 @@ type WireJacket struct {
 // Or, you can specify file using '--config' tag. In case
 // file specified by '--config' tag, the file format can be
 // viper supported format(json, yaml, toml, ...).
-// The list of activating module is used as key of injectors
+// The list of activating module is used as key of Injectors
 // to call.
 func New(serviceName string) (*WireJacket, error) {
 	viperConfig := config.NewViperConfig(serviceName)
 	wj := &WireJacket{
 		serviceName:            serviceName,
 		config:                 viperConfig,
-		injectors:              map[string]interface{}{},
-		eagerInjectors:         map[string]interface{}{},
+		Injectors:              map[string]interface{}{},
+		EagerInjectors:         map[string]interface{}{},
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
@@ -60,7 +60,7 @@ func New(serviceName string) (*WireJacket, error) {
 	return wj, nil
 }
 
-// NewWithInjectors creates WireJacket with injectors.
+// NewWithInjectors creates WireJacket with Injectors.
 // Wirejacket's config can be overrided by envrionment variable.
 // So it needs unique serviceName to avoid collision.
 // By default, it uses {serviceName}.conf file for reading list
@@ -75,17 +75,17 @@ func New(serviceName string) (*WireJacket, error) {
 // Or, you can specify file using '--config' tag. In case
 // file specified by '--config' tag, the file format can be
 // viper supported format(json, yaml, toml, ...).
-// The list of activating module is used as key of injectors
+// The list of activating module is used as key of Injectors
 // to call.
 func NewWithInjectors(
 	serviceName string,
-	injectors map[string]interface{},
-	eagerInjectors map[string]interface{}) (*WireJacket, error) {
+	Injectors map[string]interface{},
+	EagerInjectors map[string]interface{}) (*WireJacket, error) {
 	viperConfig := config.NewViperConfig(serviceName)
 	wj := &WireJacket{
 		serviceName:            serviceName,
-		injectors:              injectors,
-		eagerInjectors:         eagerInjectors,
+		Injectors:              Injectors,
+		EagerInjectors:         EagerInjectors,
 		config:                 config.NewViperConfig(serviceName),
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
@@ -114,8 +114,8 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 }
 
-// SetInjectors sets injectors to inject lazily.
-// Wire has two basic concepts: providers and injectors.
+// SetInjectors sets Injectors to inject lazily.
+// Wire has two basic concepts: providers and Injectors.
 // WireJacket maps injector to module_name and injector as a key-value pairs.
 // The module_name can be found in the config file.
 // By default, WireJacket tries to find module_name in
@@ -136,26 +136,26 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
-// # injectors can be like this.
-// var injectors = map[string]interface{}{
+// # Injectors can be like this.
+// var Injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
-// # eagerInjectors can be like this.
-// var eagerInjectors = map[string]interface{}{
+// # EagerInjectors can be like this.
+// var EagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 // }
 //
 //
-// injectors will be injected lazily.
-func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
-	wj.injectors = injectors
+// Injectors will be injected lazily.
+func (wj *WireJacket) SetInjectors(Injectors map[string]interface{}) {
+	wj.Injectors = Injectors
 }
 
-// SetEagerInjectors sets injectors to inject eagerly.
-// Wire has two basic concepts: providers and injectors.
+// SetEagerInjectors sets Injectors to inject eagerly.
+// Wire has two basic concepts: providers and Injectors.
 // WireJacket maps injector to module_name and injector as a key-value pairs.
 // The module_name can be found in the config file.
 // By default, WireJacket tries to find module_name in
@@ -176,29 +176,29 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
-// # injectors can be like this.
-// var injectors = map[string]interface{}{
+// # Injectors can be like this.
+// var Injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
-// # eagerInjectors can be like this.
-// var eagerInjectors = map[string]interface{}{
+// # EagerInjectors can be like this.
+// var EagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 // }
 //
 //
-// injectors will be injected eagerly.
-func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) {
-	wj.eagerInjectors = injectors
+// Injectors will be injected eagerly.
+func (wj *WireJacket) SetEagerInjectors(Injectors map[string]interface{}) {
+	wj.EagerInjectors = Injectors
 }
 
-// getInjector gets injector in eagerInjectors or injectors
+// getInjector gets injector in EagerInjectors or Injectors
 func (wj *WireJacket) getInjector(moduleName string) interface{} {
-	injector := wj.eagerInjectors[moduleName]
+	injector := wj.EagerInjectors[moduleName]
 	if injector == nil {
-		injector = wj.injectors[moduleName]
+		injector = wj.Injectors[moduleName]
 		if injector == nil {
 			return nil
 		}
@@ -206,43 +206,43 @@ func (wj *WireJacket) getInjector(moduleName string) interface{} {
 	return injector
 }
 
-// getInjector gets all injectors in eagerInjectors and injectors
+// getInjector gets all Injectors in EagerInjectors and Injectors
 func (wj *WireJacket) getInjectors() map[string]interface{} {
-	injectors := map[string]interface{}{}
-	for moduleName, injector := range wj.eagerInjectors {
-		injectors[moduleName] = injector
+	Injectors := map[string]interface{}{}
+	for moduleName, injector := range wj.EagerInjectors {
+		Injectors[moduleName] = injector
 	}
-	for moduleName, injector := range wj.injectors {
-		injectors[moduleName] = injector
+	for moduleName, injector := range wj.Injectors {
+		Injectors[moduleName] = injector
 	}
 
-	return injectors
+	return Injectors
 }
 
 // AddInjector adds injector function to the lazy injection list.
 func (wj *WireJacket) AddInjector(moduleName string, injector interface{}) {
 	if reflect.TypeOf(injector).Kind() == reflect.Func {
-		wj.injectors[moduleName] = injector
+		wj.Injectors[moduleName] = injector
 	}
 }
 
 // AddInjector adds injector function to the eager injection list.
 func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) {
 	if reflect.TypeOf(injector).Kind() == reflect.Func {
-		wj.eagerInjectors[moduleName] = injector
+		wj.EagerInjectors[moduleName] = injector
 	}
 }
 
-// DoWire does wiring of wires(injectors).
-// It calls eagerInjectors as finding(if no exists, loading) and injecting dependencies.
+// DoWire does wiring of wires(Injectors).
+// It calls EagerInjectors as finding(if no exists, loading) and injecting dependencies.
 func (wj *WireJacket) DoWire() error {
 	if len(wj.getInjectors()) == 0 {
-		return fmt.Errorf("no injectors to wire")
+		return fmt.Errorf("no Injectors to wire")
 	}
-	if len(wj.eagerInjectors) == 0 {
-		return fmt.Errorf("no eager injectors to wire")
+	if len(wj.EagerInjectors) == 0 {
+		return fmt.Errorf("no eager Injectors to wire")
 	}
-	for moduleName, eagerInjector := range wj.eagerInjectors {
+	for moduleName, eagerInjector := range wj.EagerInjectors {
 		err := wj.loadModule(moduleName, eagerInjector)
 		if err != nil {
 			return fmt.Errorf("[%s] %s", moduleName, err)
@@ -325,8 +325,8 @@ func (wj *WireJacket) loadAndGetDependencies(
 }
 
 func (wj *WireJacket) findInjector(dependencyType reflect.Type) (string, interface{}) {
-	injectors := wj.getInjectors()
-	for moduleName, injector := range injectors {
+	Injectors := wj.getInjectors()
+	for moduleName, injector := range Injectors {
 		injectorFunc := reflect.ValueOf(injector)
 		injectorFuncType := injectorFunc.Type()
 		if injectorFuncType.NumOut() > 0 &&
@@ -469,8 +469,8 @@ func (wj *WireJacket) GetModule(moduleName string) interface{} {
 // config := wj.GetModuleByType((*config.Config)(nil))
 //
 // If no exists, it tries to create module using injector and returns.
-// This may return undesirable results if there are other implementations 
-// that may use the same interface. Use only if you are sure that there 
+// This may return undesirable results if there are other implementations
+// that may use the same interface. Use only if you are sure that there
 // are no overlapping interfaces.
 func (wj *WireJacket) GetModuleByType(interfaceType interface{}) interface{} {
 	if interfaceType == nil {

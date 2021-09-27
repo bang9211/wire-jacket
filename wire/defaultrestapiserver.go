@@ -1,4 +1,4 @@
-package wirejackettest
+package wire
 
 import (
 	"fmt"

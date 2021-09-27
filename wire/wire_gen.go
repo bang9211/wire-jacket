@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package wirejackettest
+package wire
 
 import (
 	"github.com/bang9211/wire-jacket/internal/config"
@@ -35,25 +35,25 @@ func InjectDefaultRESTAPIServer(config2 config.Config, blockchain Blockchain) (R
 //
 // Dependency Injection List
 //
-// injectors stores module_name(key) with injector_func(value) using map.
+// Injectors stores module_name(key) with injector_func(value) using map.
 // For wiring, name of implement using in config with injector function.
 //
 // Examples :
 //
-//	var injectors = map[string]interface{}{
+//	var Injectors = map[string]interface{}{
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
-// 	var eagerInjectors = map[string]interface{}{
+// 	var EagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 // 	}
 //
-var injectors = map[string]interface{}{
+var Injectors = map[string]interface{}{
 	"ossiconesblockchain": InjectOssiconesBlockchain,
 }
 
-var eagerInjectors = map[string]interface{}{
+var EagerInjectors = map[string]interface{}{
 	"defaultexplorerserver": InjectDefaultExplorerServer,
 	"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 }

@@ -13,6 +13,8 @@ import (
 type ExplorerServer interface {
 	// Serve listens and serves the Explorer Server.
 	Serve()
+	// GetAllBlocks gets all blocks.
+	GetAllBlocks() []interface{}
 	// Close closes the Explorer Server.
 	Close() error
 }
@@ -73,6 +75,10 @@ func (d *DefaultExplorerServer) Serve() {
 		fmt.Printf("Listening Explorer Server on %s\n", d.address)
 		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
+}
+
+func (d *DefaultExplorerServer) GetAllBlocks() []interface{} {
+	return d.blockchain.AllBlocks()
 }
 
 func (d *DefaultExplorerServer) Close() error {

@@ -14,6 +14,8 @@ import (
 type RESTAPIServer interface {
 	// Serve listens and serves the REST API Server.
 	Serve()
+	// Get gets routing paths
+	GetPaths() []string
 	// Close closes the REST API Server.
 	Close() error
 }
@@ -108,6 +110,10 @@ func (d *DefaultRESTAPIServer) Serve() {
 		fmt.Printf("Listening REST API Server on %s\n", d.address)
 		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
+}
+
+func (d *DefaultRESTAPIServer) GetPaths() []string {
+	return []string{"/"}
 }
 
 func (d *DefaultRESTAPIServer) Close() error {

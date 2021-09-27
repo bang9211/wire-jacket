@@ -469,6 +469,9 @@ func (wj *WireJacket) GetModule(moduleName string) interface{} {
 // config := wj.GetModuleByType((*config.Config)(nil))
 //
 // If no exists, it tries to create module using injector and returns.
+// This may return undesirable results if there are other implementations 
+// that may use the same interface. Use only if you are sure that there 
+// are no overlapping interfaces.
 func (wj *WireJacket) GetModuleByType(interfaceType interface{}) interface{} {
 	if interfaceType == nil {
 		return nil

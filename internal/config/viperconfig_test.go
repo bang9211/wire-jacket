@@ -96,6 +96,81 @@ func TestLoadDefault(t *testing.T) {
 	// Equal(t, testStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))  // doesn't work
 }
 
+func TestLoadConfigFileNotFound(t *testing.T) {
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "resources/no_exist.conf")
+	cfg, err := initTest("TestLoadConfigFileNotFound")
+	NoError(t, err, "Failed to initTest()")
+	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+
+	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
+	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
+	Equal(t, defaultIntVal, cfg.GetInt("test_viper_config_int_value", defaultIntVal))
+	Equal(t, defaultInt32Val, cfg.GetInt32("test_viper_config_int32_value", defaultInt32Val))
+	Equal(t, defaultInt64Val, cfg.GetInt64("test_viper_config_int64_value", defaultInt64Val))
+	Equal(t, defaultUintVal, cfg.GetUint("test_viper_config_uint_value", defaultUintVal))
+	Equal(t, defaultUint32Val, cfg.GetUint32("test_viper_config_uint32_value", defaultUint32Val))
+	Equal(t, defaultUint64Val, cfg.GetUint64("test_viper_config_uint64_value", defaultUint64Val))
+	Equal(t, defaultFloat64Val, cfg.GetFloat64("test_viper_config_float64_value", defaultFloat64Val))
+	Equal(t, defaultTimeVal, cfg.GetTime("test_viper_config_time_value", defaultTimeVal))
+	Equal(t, defaultDurationVal, cfg.GetDuration("test_viper_config_duration_value", defaultDurationVal))
+	// Equal(t, defaultIntSliceVal, cfg.GetIntSlice("test_viper_config_intslice_value", defaultIntSliceVal)) // doesn't work
+	Equal(t, defaultStringSliceVal, cfg.GetStringSlice("test_viper_config_stringslice_value", defaultStringSliceVal))
+	// Equal(t, defaultStringMapVal, cfg.GetStringMap("test_viper_config_stringmap_value", defaultStringMapVal))  // doesn't work
+	// Equal(t, defaultStringMapStringVal, cfg.GetStringMapString("test_viper_config_stringmapstring_value", defaultStringMapStringVal))  // doesn't work
+	// Equal(t, defaultStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))  // doesn't work
+}
+
+func TestLoadUnsupportedExt(t *testing.T) {
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "resources/unsupported.test")
+	cfg, err := initTest("TestLoadUnsupportedExtConf")
+	NoError(t, err, "Failed to initTest()")
+	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+
+	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
+	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
+	Equal(t, defaultIntVal, cfg.GetInt("test_viper_config_int_value", defaultIntVal))
+	Equal(t, defaultInt32Val, cfg.GetInt32("test_viper_config_int32_value", defaultInt32Val))
+	Equal(t, defaultInt64Val, cfg.GetInt64("test_viper_config_int64_value", defaultInt64Val))
+	Equal(t, defaultUintVal, cfg.GetUint("test_viper_config_uint_value", defaultUintVal))
+	Equal(t, defaultUint32Val, cfg.GetUint32("test_viper_config_uint32_value", defaultUint32Val))
+	Equal(t, defaultUint64Val, cfg.GetUint64("test_viper_config_uint64_value", defaultUint64Val))
+	Equal(t, defaultFloat64Val, cfg.GetFloat64("test_viper_config_float64_value", defaultFloat64Val))
+	Equal(t, defaultTimeVal, cfg.GetTime("test_viper_config_time_value", defaultTimeVal))
+	Equal(t, defaultDurationVal, cfg.GetDuration("test_viper_config_duration_value", defaultDurationVal))
+	// Equal(t, defaultIntSliceVal, cfg.GetIntSlice("test_viper_config_intslice_value", defaultIntSliceVal)) // doesn't work
+	Equal(t, defaultStringSliceVal, cfg.GetStringSlice("test_viper_config_stringslice_value", defaultStringSliceVal))
+	// Equal(t, defaultStringMapVal, cfg.GetStringMap("test_viper_config_stringmap_value", defaultStringMapVal))  // doesn't work
+	// Equal(t, defaultStringMapStringVal, cfg.GetStringMapString("test_viper_config_stringmapstring_value", defaultStringMapStringVal))  // doesn't work
+	// Equal(t, defaultStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))  // doesn't work
+}
+
+func TestLoadInvalidFormat(t *testing.T) {
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "resources/invalid_format.yaml")
+	cfg, err := initTest("TestLoadInvalidFormat")
+	NoError(t, err, "Failed to initTest()")
+	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+
+	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
+	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
+	Equal(t, defaultIntVal, cfg.GetInt("test_viper_config_int_value", defaultIntVal))
+	Equal(t, defaultInt32Val, cfg.GetInt32("test_viper_config_int32_value", defaultInt32Val))
+	Equal(t, defaultInt64Val, cfg.GetInt64("test_viper_config_int64_value", defaultInt64Val))
+	Equal(t, defaultUintVal, cfg.GetUint("test_viper_config_uint_value", defaultUintVal))
+	Equal(t, defaultUint32Val, cfg.GetUint32("test_viper_config_uint32_value", defaultUint32Val))
+	Equal(t, defaultUint64Val, cfg.GetUint64("test_viper_config_uint64_value", defaultUint64Val))
+	Equal(t, defaultFloat64Val, cfg.GetFloat64("test_viper_config_float64_value", defaultFloat64Val))
+	Equal(t, defaultTimeVal, cfg.GetTime("test_viper_config_time_value", defaultTimeVal))
+	Equal(t, defaultDurationVal, cfg.GetDuration("test_viper_config_duration_value", defaultDurationVal))
+	// Equal(t, defaultIntSliceVal, cfg.GetIntSlice("test_viper_config_intslice_value", defaultIntSliceVal)) // doesn't work
+	Equal(t, defaultStringSliceVal, cfg.GetStringSlice("test_viper_config_stringslice_value", defaultStringSliceVal))
+	// Equal(t, defaultStringMapVal, cfg.GetStringMap("test_viper_config_stringmap_value", defaultStringMapVal))  // doesn't work
+	// Equal(t, defaultStringMapStringVal, cfg.GetStringMapString("test_viper_config_stringmapstring_value", defaultStringMapStringVal))  // doesn't work
+	// Equal(t, defaultStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))  // doesn't work
+}
+
 func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.json")

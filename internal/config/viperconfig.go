@@ -31,7 +31,10 @@ func (vc *ViperConfig) init() {
 	// only use 'config' flag for reading config file path
 	configFilePath := vc.GetString("config", defaultConfigFile)
 	vc.preconfigForRead(configFilePath)
-	vc.Load()
+	err := vc.Load()
+	if err != nil {
+		log.Printf("Failed to load config : %s", err)
+	}
 }
 
 func (vc *ViperConfig) setFlags(defaultConfigFile string) {
@@ -50,12 +53,7 @@ func (vc *ViperConfig) preconfigForRead(configFilePath string) {
 		vc.viper.SetConfigName(utils.GetFileName(configFilePath))
 		vc.viper.SetConfigType("env")
 	} else {
-		supportedType := utils.IsContain(viper.SupportedExts, ext)
-		if supportedType {
-			vc.viper.SetConfigFile(configFilePath)
-		} else {
-			vc.viper.SetConfigName(utils.GetFileName(configFilePath))
-		}
+		vc.viper.SetConfigFile(configFilePath)
 	}
 	vc.viper.AutomaticEnv()
 }
@@ -68,13 +66,14 @@ func (vc *ViperConfig) Load() error {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Printf("Failed to find config file default values will be used : %s", err)
 		} else {
-			log.Fatal(err)
+			log.Printf("Failed to read config file default values will be used : %s", err)
 		}
+		return err
 	}
 
 	err := vc.viper.Unmarshal(vc)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	return nil

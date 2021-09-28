@@ -1,20 +1,42 @@
-# 🧰 wire-jacket 
+# Wire-Jacket: IoC Container of google/wire
 [![GoDoc][doc-img]][doc] [![Github release][release-img]][release] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Go Report Card][report-card-img]][report-card]
 
 Jacket of google/wire: advanced DI approach wrapping google/wire
+A jacket is an outer sheath that protects the wire core from mechanical, moisture and chemical issues.
+
+wire-jacket wraps google/wire and provides advanced DI(Dependency Injection).
+
+google/wire : https://github.com/google/wire
 
 ![image](https://user-images.githubusercontent.com/24886864/132741198-7a92ef0a-7d59-4f3a-933c-fd5e830a31a4.png)
 
-A jacket is an outer sheath that protects the wire core from mechanical, moisture and chemical issues.
-
-wire-jacket wrapping google/wire and provides advanced DI(Dependency Injection).
 
 
-Features
-- IoC Container based environment variables using viper
-- Lazy Loading
-- Eager Loading
+# Installation
+Install Wire-Jacket by running:
+```
+go get github.com/bang9211/wire-jacket
+```
+and ensuring that $GOPATH/bin is added to your $PATH.
 
+# Examples
+Wire-Jacket example of ossicones.
+In this example, ossicones is simple blockchain package.
+This package consisted of 4 components: Config, OssiconesBlockchain, ExplorerServer, and RestapiServer.
+
+1. Create wire.go.
+
+2. Generate wire_gen.go using wire.
+```
+wire
+```
+
+3. Create wirejacket, Set injectors, Call DoWire().
+
+
+## Features
+- IoC Container based environment variables using viper config
+- Lazy Loading, Eager Loading
 
 ## Why wire-jacket needs?
 google/wire works statically because it performs DI at compile-time.

@@ -51,6 +51,9 @@ For example, if you use the MySQL DB implementation in your app and want to repl
 ### 2. Graceful handling of modules
 You can Gracefully write functions that need to call functions on every singleton instance like Close , Reload , etc.
 
+### 3. Interface binding Implement
+Wirejacket uses the approach of injecting implement into the interface. This approach allows the team leader or designer to define the interface required for the project and effectively divide the work, and each implementation can be easily replaced with a plug-in method using the config file. You just need to change the module (implement) name in the configuration.
+
 
 [doc-img]: http://img.shields.io/badge/GoDoc-Reference-blue.svg
 [doc]: https://pkg.go.dev/github.com/bang9211/wire-jacket

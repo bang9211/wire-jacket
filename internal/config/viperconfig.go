@@ -65,10 +65,9 @@ func (vc *ViperConfig) Load() error {
 	if err := vc.viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Printf("Failed to find config file default values will be used : %s", err)
-		} else {
-			log.Printf("Failed to read config file default values will be used : %s", err)
+			return err
 		}
-		return err
+		log.Printf("Failed to read config file default values will be used : %s", err)
 	}
 
 	err := vc.viper.Unmarshal(vc)

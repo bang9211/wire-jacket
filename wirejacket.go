@@ -18,7 +18,6 @@ type Module interface {
 
 // WireJacket structure. the jacket of the wires(injectors).
 type WireJacket struct {
-	serviceName            string
 	config                 config.Config
 	injectors              map[string]interface{}
 	eagerInjectors         map[string]interface{}
@@ -27,106 +26,119 @@ type WireJacket struct {
 	activatingModuleNames  []string
 }
 
-// New creates empty WireJacket. serviceName uses in config.
-// Wirejacket's config can be overrided by envrionment variable.
-// So it needs unique serviceName to avoid collision.
-// By default, it uses {serviceName}.conf file for reading list of
-// activating module.(default format is .envfile)
+// New creates empty WireJacket.
+// If you want to use more than one WireJacket on the same system,
+// Use NewWithServiceName with unique serviceName.
 //
-// Example in {serviceName}.conf
+// By default, WireJacket reads list of module name to activate
+// in 'modules' value of config.
+// But Wire-Jacket considered The Twelve Factors. Config can be
+// overrided by envrionment variable.(see viperconfig.go)
+// So, when using more than one WireJacket on the same system,
+// each WireJacket should have a unique service name to avoid
+// conflicting value of 'modules'.
 //
-// {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// If serviceName no exists, WireJacket reads value of
+// 'modules'.
+// By default, WireJacket reads app.conf. Or you can specify
+// file with '--config' flag.(see viperconfig.go)
 //
-// If {serviceName}.conf file no exists, SetActivatingModules
-// must be called to specify activating modules.
-// Or, you can specify file using '--config' tag. In case
-// file specified by '--config' tag, the file format can be
-// viper supported format(json, yaml, toml, ...).
-// The list of activating module is used as key of injectors
+// Example in app.conf without serviceName
+//
+// modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+//
+// SetActivatingModules can specify activating modules without config.
+// But this way is needed re-compile for changing module.
+// The list of activating modules is used as key of injectors
 // to call.
-func New(serviceName string) (*WireJacket, error) {
-	viperConfig := config.NewViperConfig(serviceName)
+func New() *WireJacket {
+	viperConfig := config.NewViperConfig()
 	wj := &WireJacket{
-		serviceName:            serviceName,
 		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
-	wj.activatingModuleNames = wj.readActivatingModules()
+	wj.activatingModuleNames = wj.readActivatingModules("")
 	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 
-	return wj, nil
+	return wj
 }
 
-// NewWithInjectors creates WireJacket with injectors.
-// Wirejacket's config can be overrided by envrionment variable.
-// So it needs unique serviceName to avoid collision.
-// By default, it uses {serviceName}.conf file for reading list
-// activating module.(default format is .envfile)
+// NewWithServiceName creates empty WireJacket.
+// Make sure the serviceName is unique in same system.
+// By default, WireJacket reads list of module name to activate
+// in 'modules' value of config.
 //
-// Example in {serviceName}.conf
+// But Wire-Jacket considered The Twelve Factors. Config can be
+// overrided by envrionment variable.(see viperconfig.go)
+// So, when using more than one WireJacket on the same system,
+// each WireJacket should have a unique service name to avoid
+// conflicting value of 'modules'.
 //
-// {serviceName}_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// If serviceName exists, WireJacket reads value of
+// '{serviceName}_modules' in config.
+// By default, WireJacket reads app.conf. Or you can specify
+// file with '--config' flag.(see viperconfig.go)
 //
-// If {serviceName}.conf file no exists, SetActivatingModules
-// must be called to specify activating modules.
-// Or, you can specify file using '--config' tag. In case
-// file specified by '--config' tag, the file format can be
-// viper supported format(json, yaml, toml, ...).
-// The list of activating module is used as key of injectors
+// Example in app.conf with serviceName(ossicones)
+//
+// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+//
+// SetActivatingModules can specify activating modules without config.
+// But this way is needed re-compile for changing module.
+// The list of activating modules is used as key of injectors
 // to call.
-func NewWithInjectors(
-	serviceName string,
-	injectors map[string]interface{},
-	eagerInjectors map[string]interface{}) (*WireJacket, error) {
-	viperConfig := config.NewViperConfig(serviceName)
+func NewWithServiceName(serviceName string) *WireJacket {
+	viperConfig := config.NewViperConfig()
 	wj := &WireJacket{
-		serviceName:            serviceName,
-		injectors:              injectors,
-		eagerInjectors:         eagerInjectors,
-		config:                 config.NewViperConfig(serviceName),
+		config:                 viperConfig,
+		injectors:              map[string]interface{}{},
+		eagerInjectors:         map[string]interface{}{},
 		modules:                map[string]Module{"viperconfig": viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
-	wj.activatingModuleNames = wj.readActivatingModules()
+	wj.activatingModuleNames = wj.readActivatingModules(serviceName)
 	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 
-	return wj, nil
+	return wj
 }
 
-func (wj *WireJacket) readActivatingModules() []string {
-	activatingModuleNames := wj.config.GetStringSlice(
-		strings.ToLower(wj.serviceName)+"_activating_modules",
-		[]string{},
-		// defaultActivatingModules[:], // array to slice
-	)
+func (wj *WireJacket) readActivatingModules(serviceName string) []string {
+	var activatingModuleNames []string
+	if serviceName == "" {
+		activatingModuleNames = wj.config.GetStringSlice(
+			"modules", []string{},
+		)
+	} else {
+		activatingModuleNames = wj.config.GetStringSlice(
+			strings.ToLower(serviceName)+"_modules", []string{},
+		)
+	}
 
 	return activatingModuleNames
 }
 
-// SetActivatingModules sets case-insensitive list of module's name.
+// SetActivatingModules sets list of module's name.
 // module's name is used as key of injector maps.
-// It can be overrided by value of {serviceName}_activating_modules in {serviceName}.conf file.
+// It overwrites list of modules to activate.
 func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 	wj.activatingModuleNames = moduleNames
 	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
 }
 
 // SetInjectors sets injectors to inject lazily.
-// Wire has two basic concepts: providers and injectors.
-// WireJacket maps injector to module_name and injector as a key-value pairs.
-// The module_name can be found in the config file.
-// By default, WireJacket tries to find module_name in
-// {process_name}_activating_modules of {process_name}.conf file.
+// WireJacket maps module_name to injector as a key-value pairs.
+// WireJacket tries to find module_name.
+// if serviceName no exists, value of 'modules' in config.
+// if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example (process_name=ossicones) :
+// Example (serviceName=ossicones) :
 //
-//
-// # declaration in ossicones.conf
-// ossicones_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// # app.conf
+// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
 //
 //
 // # definition in wire.go
@@ -150,23 +162,22 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 //
 //
 // injectors will be injected lazily.
-func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
+func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket {
 	wj.injectors = injectors
+	return wj
 }
 
 // SetEagerInjectors sets injectors to inject eagerly.
-// Wire has two basic concepts: providers and injectors.
-// WireJacket maps injector to module_name and injector as a key-value pairs.
-// The module_name can be found in the config file.
-// By default, WireJacket tries to find module_name in
-// {process_name}_activating_modules of {process_name}.conf file.
+// WireJacket maps module_name to injector as a key-value pairs.
+// WireJacket tries to find module_name.
+// if serviceName no exists, value of 'modules' in config.
+// if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example (process_name=ossicones) :
+// Example (serviceName=ossicones) :
 //
-//
-// # declaration in ossicones.conf
-// ossicones_activating_modules=ossiconesblockchain viperconfig defaultexplorerserver defaultrestapiserver
+// # app.conf
+// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
 //
 //
 // # definition in wire.go
@@ -190,8 +201,9 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
 //
 //
 // injectors will be injected eagerly.
-func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) {
+func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) *WireJacket {
 	wj.eagerInjectors = injectors
+	return wj
 }
 
 // getInjector gets injector in eagerInjectors or injectors
@@ -239,16 +251,14 @@ func (wj *WireJacket) DoWire() error {
 	if len(wj.getInjectors()) == 0 {
 		return fmt.Errorf("no injectors to wire")
 	}
+	if len(wj.activatingModuleNames) == 0 {
+		return fmt.Errorf("no activating modules to wire")
+	}
 	for moduleName, eagerInjector := range wj.eagerInjectors {
 		err := wj.loadModule(moduleName, eagerInjector)
 		if err != nil {
 			return fmt.Errorf("[%s] %s", moduleName, err)
 		}
-	}
-
-	// if eagerInjectors no exists, wire all.
-	if len(wj.eagerInjectors) == 0 {
-		wj.loadAllModules()
 	}
 
 	return nil
@@ -260,7 +270,9 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 		return nil
 	}
 	if !utils.IsContain(wj.activatingModuleNames, moduleName) {
-		return fmt.Errorf("no activating module name for injector(%s)", moduleName)
+		return fmt.Errorf("no activating module name for injector(%s), in %s",
+			moduleName,
+			wj.activatingModuleNames)
 	}
 
 	// get dependencies
@@ -402,44 +414,6 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 		}
 	}
 	return module, nil
-}
-
-func (wj *WireJacket) loadAllModules() error {
-	NotActivatedList := make([]string, len(wj.activatingModuleNames))
-	copy(NotActivatedList, wj.activatingModuleNames)
-	activatedList := []string{}
-	tryCount := 0
-
-	for len(NotActivatedList) > 0 && tryCount < len(NotActivatedList)*len(NotActivatedList) {
-		for _, moduleName := range NotActivatedList {
-			injector := wj.getInjector(moduleName)
-			if injector == nil {
-				return fmt.Errorf("failed to get injector of %s", moduleName)
-			}
-			injectorFunc := reflect.ValueOf(injector)
-			injectorFuncType := injectorFunc.Type()
-			dependencies, err := wj.getDependencies(moduleName, injectorFuncType)
-			if err != nil {
-				return err
-			}
-			if dependencies != nil {
-				returnVal := injectorFunc.Call(dependencies)
-				module, err := wj.checkInjectionResult(returnVal)
-				if err != nil {
-					return fmt.Errorf("[%s] %s", moduleName, err)
-				}
-				wj.modules[moduleName] = module
-				pushModule(&wj.sortedModulesByCreated, module)
-				activatedList = append(activatedList, moduleName)
-			}
-		}
-		for _, activated := range activatedList {
-			NotActivatedList = utils.RemoveElement(NotActivatedList, activated)
-		}
-		tryCount++
-	}
-
-	return nil
 }
 
 // GetConfig returns config object.

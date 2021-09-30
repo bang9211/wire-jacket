@@ -74,9 +74,8 @@ func TestImplementConfig(t *testing.T) {
 }
 
 func TestLoadDefault(t *testing.T) {
-	cfg, err := initTest("default_test")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, testStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -99,9 +98,8 @@ func TestLoadDefault(t *testing.T) {
 func TestLoadConfigFileNotFound(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/no_exist.conf")
-	cfg, err := initTest("TestLoadConfigFileNotFound")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -124,9 +122,8 @@ func TestLoadConfigFileNotFound(t *testing.T) {
 func TestLoadUnsupportedExt(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/unsupported.test")
-	cfg, err := initTest("TestLoadUnsupportedExtConf")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -149,9 +146,8 @@ func TestLoadUnsupportedExt(t *testing.T) {
 func TestLoadInvalidFormat(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/invalid_format.yaml")
-	cfg, err := initTest("TestLoadInvalidFormat")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, defaultStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -174,9 +170,8 @@ func TestLoadInvalidFormat(t *testing.T) {
 func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.json")
-	cfg, err := initTest("TestLoadJSON")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, testStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -199,9 +194,8 @@ func TestLoadJSON(t *testing.T) {
 func TestLoadYAML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.yaml")
-	cfg, err := initTest("TestLoadYAML")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, testStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -224,9 +218,8 @@ func TestLoadYAML(t *testing.T) {
 func TestLoadTOML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.toml")
-	cfg, err := initTest("TestLoadTOML")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
 	Equal(t, testStringVal, cfg.GetString("test_viper_config_string_value", defaultStringVal))
@@ -261,9 +254,8 @@ func TestGetBool(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/bool_test.json")
-	cfg, err := initTest("TestGetBool")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetBoolTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -290,9 +282,8 @@ func TestGetString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/string_test.json")
-	cfg, err := initTest("TestGetString")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetStringTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -318,9 +309,8 @@ func TestGetInt(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int_test.json")
-	cfg, err := initTest("TestGetInt")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetIntTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -346,9 +336,8 @@ func TestGetInt32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int32_test.json")
-	cfg, err := initTest("TestGetInt32")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetInt32Tests {
 		t.Run(test.title, func(t *testing.T) {
@@ -374,9 +363,8 @@ func TestGetInt64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int64_test.json")
-	cfg, err := initTest("TestGetInt64")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetInt64Tests {
 		t.Run(test.title, func(t *testing.T) {
@@ -402,9 +390,8 @@ func TestGetUint(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint_test.json")
-	cfg, err := initTest("TestGetUint")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetUintTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -430,9 +417,8 @@ func TestGetUint32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint32_test.json")
-	cfg, err := initTest("TestGetUint32")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetUint32Tests {
 		t.Run(test.title, func(t *testing.T) {
@@ -458,9 +444,8 @@ func TestGetUint64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint64_test.json")
-	cfg, err := initTest("TestGetUint64")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetUint64Tests {
 		t.Run(test.title, func(t *testing.T) {
@@ -482,9 +467,8 @@ func TestGetFloat64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/float64_test.json")
-	cfg, err := initTest("TestGetFloat64")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetFloat64Tests {
 		t.Run(test.title, func(t *testing.T) {
@@ -506,9 +490,8 @@ func TestGetTime(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/time_test.json")
-	cfg, err := initTest("TestGetTime")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetTimeTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -530,9 +513,8 @@ func TestGetDuration(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/duration_test.json")
-	cfg, err := initTest("TestGetDuration")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetDurationTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -555,9 +537,8 @@ func TestGetIntSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/intslice_test.json")
-	cfg, err := initTest("TestGetIntSlice")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetIntSliceTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -580,9 +561,8 @@ func TestGetStringSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringslice_test.json")
-	cfg, err := initTest("TestGetStringSlice")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetStringSliceTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -610,9 +590,8 @@ func TestGetStringMap(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmap_test.json")
-	cfg, err := initTest("TestGetStringMap")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetStringMapTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -640,9 +619,8 @@ func TestGetStringMapString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapstring_test.json")
-	cfg, err := initTest("TestGetStringMapString")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetStringMapTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -670,9 +648,8 @@ func TestGetStringMapSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapslice_test.json")
-	cfg, err := initTest("TestGetStringMapSlice")
-	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
+	cfg := NewViperConfig()
+	defer cfg.Close()
 
 	for _, test := range GetStringMapStringTests {
 		t.Run(test.title, func(t *testing.T) {
@@ -682,7 +659,6 @@ func TestGetStringMapSlice(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	cfg, err := initTest("TestClose")
-	NoError(t, err, "Failed to initTest()")
+	cfg := NewViperConfig()
 	NoError(t, cfg.Close(), "Failed to close ViperConfig")
 }

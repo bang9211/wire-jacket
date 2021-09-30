@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package wire
+package mockup
 
 import (
 	"github.com/bang9211/wire-jacket/internal/config"
@@ -17,21 +17,23 @@ import (
 // Examples :
 //
 //	var Injectors = map[string]interface{}{
-// 		"ossiconesblockchain":	InjectOssiconesBlockchain,
+// 		"mockup_database":   InjectMockupDB,
+// 		"mockup_blockchain": InjectMockupBlockchain,
 // 	}
 //
 // 	var EagerInjectors = map[string]interface{}{
-// 		"defaultexplorerserver": InjectDefaultExplorerServer,
-// 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
+//		"mockup_explorerserver": InjectMockupExplorerServer,
+//		"mockup_restapiserver":  InjectMockupRESTAPIServer,
 // 	}
 //
 var Injectors = map[string]interface{}{
-	"ossiconesblockchain": InjectOssiconesBlockchain,
+	"mockup_database":   InjectMockupDB,
+	"mockup_blockchain": InjectMockupBlockchain,
 }
 
 var EagerInjectors = map[string]interface{}{
-	"defaultexplorerserver": InjectDefaultExplorerServer,
-	"defaultrestapiserver":  InjectDefaultRESTAPIServer,
+	"mockup_explorerserver": InjectMockupExplorerServer,
+	"mockup_restapiserver":  InjectMockupRESTAPIServer,
 }
 
 //
@@ -56,26 +58,32 @@ var EagerInjectors = map[string]interface{}{
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //
 
-// InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
-func InjectOssiconesBlockchain(config config.Config) (Blockchain, error) {
-	wire.Build(GetOrCreateOssiconesBlockchain)
+// InjectMockupDB injects dependencies and inits of Database.
+func InjectMockupDB(config config.Config) (Database, error) {
+	wire.Build(NewMockupDB)
 	return nil, nil
 }
 
-// InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
-func InjectDefaultExplorerServer(
+// InjectMockupBlockchain injects dependencies and inits of Blockchain.
+func InjectMockupBlockchain(db Database) (Blockchain, error) {
+	wire.Build(NewMockupBlockchain)
+	return nil, nil
+}
+
+// InjectMockupExplorerServer injects dependencies and inits of ExplorerServer.
+func InjectMockupExplorerServer(
 	config config.Config,
 	blockchain Blockchain,
 ) (ExplorerServer, error) {
-	wire.Build(GetOrCreateDefaultExplorerServer)
+	wire.Build(NewMockupExplorerServer)
 	return nil, nil
 }
 
-// InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
-func InjectDefaultRESTAPIServer(
+// InjectMockupRESTAPIServer injects dependencies and inits of RESTAPIServer.
+func InjectMockupRESTAPIServer(
 	config config.Config,
 	blockchain Blockchain,
 ) (RESTAPIServer, error) {
-	wire.Build(GetOrCreateDefaultRESTAPIServer)
+	wire.Build(NewMockupRESTAPIServer)
 	return nil, nil
 }

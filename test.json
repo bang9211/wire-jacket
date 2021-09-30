@@ -1,13 +1,13 @@
 {
-    "test_activating_modules":[
-        "ossiconesblockchain", 
-        "viperconfig",
-        "defaultexplorerserver",
-        "defaultrestapiserver"
+    "test_modules":[
+        "mockup_database", 
+        "mockup_blockchain",
+        "mockup_explorerserver",
+        "mockup_restapiserver"
     ],
     
     "ossicones_src_home":"/Users/hanyoungtak/Documents/workspace/go_project/ossicones",
-    "ossicones_blockchain_genesis_block_data":"Genesis OssiconesBlock",
+    "ossicones_genesis_block_data":"Genesis OssiconesBlock",
     
     "ossicones_explorer_server_host":"0.0.0.0",
     "ossicones_explorer_server_port":5000,

@@ -6,19 +6,33 @@ import (
 	"testing"
 
 	"github.com/bang9211/wire-jacket/internal/config"
-	"github.com/bang9211/wire-jacket/wire"
+	"github.com/bang9211/wire-jacket/mockup"
 	"github.com/stretchr/testify/assert"
 )
 
 var emptyInjectors = map[string]interface{}{}
 var emptyEagerInjectors = map[string]interface{}{}
 
-func TestWireJacketDefaultConfigCase(t *testing.T) {
+func TestNewDefaultConfigCase(t *testing.T) {
 	// test.conf(.envfile)
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := New().
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
-	err = wj.DoWire()
+	err := wj.DoWire()
+	assert.NoError(t, err, "Failed to DoWire()")
+
+	err = wj.Close()
+	assert.NoError(t, err, "Failed to Close()")
+}
+
+func TestNewWithServiceNameDefaultConfigCase(t *testing.T) {
+	// test.conf(.envfile)
+	wj := NewWithServiceName("test").
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
+
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	err = wj.Close()
@@ -26,74 +40,63 @@ func TestWireJacketDefaultConfigCase(t *testing.T) {
 }
 
 func TestWireJacketSpecifiedConfigCase(t *testing.T) {
+	backupArgs := os.Args
+
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "test.json")
 	// test.json
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := NewWithServiceName("test").
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	err = wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
+
+	os.Args = backupArgs
 }
 
 func TestWireJacketNoConfigCase(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
+	backupArgs := os.Args
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "no_exist.json")
+	wj := NewWithServiceName("no_exist_service")
+
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	err = wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
+
+	os.Args = backupArgs
 }
 
 func TestNew(t *testing.T) {
-	wj, err := New("test")
-	assert.NoError(t, err, "Failed to New()")
+	wj := New()
 
-	// no wire.Injectors to wire
-	err = wj.DoWire()
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 
-	err = wj.DoWire()
-	assert.NoError(t, err, "Failed to DoWire()")
-
-	err = wj.Close()
-	assert.NoError(t, err, "Failed to Close()")
-}
-
-func TestNewNoConfigCase(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
-
-	// no wire.Injectors to wire
-	err = wj.DoWire()
-	assert.Error(t, err)
-
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
-	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
-	})
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
@@ -102,16 +105,18 @@ func TestNewNoConfigCase(t *testing.T) {
 }
 
 func TestNewWithEmptyInjectors(t *testing.T) {
-	wj, err := NewWithInjectors("test", emptyInjectors, emptyEagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := NewWithServiceName("test").
+		SetInjectors(emptyInjectors).
+		SetEagerInjectors(emptyEagerInjectors)
 
-	// no wire.Injectors to wire
-	err = wj.DoWire()
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
@@ -121,20 +126,23 @@ func TestNewWithEmptyInjectors(t *testing.T) {
 }
 
 func TestNewWithEmptyInjectorsNoConfigCase(t *testing.T) {
-	wj, err := NewWithInjectors("no_exist_service", emptyInjectors, emptyEagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := NewWithServiceName("no_exist_service").
+		SetInjectors(emptyInjectors).
+		SetEagerInjectors(emptyEagerInjectors)
 
-	// no wire.Injectors to wire
-	err = wj.DoWire()
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
@@ -144,28 +152,29 @@ func TestNewWithEmptyInjectorsNoConfigCase(t *testing.T) {
 }
 
 func TestSetActivatingModules(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
+	wj := NewWithServiceName("no_exist_service")
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	// no activating modules to wire
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.Error(t, err)
 
 	wj.SetActivatingModules([]string{
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 	err = wj.DoWire()
 	// no dependency to wire
 	assert.Error(t, err)
 
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
@@ -175,22 +184,22 @@ func TestSetActivatingModules(t *testing.T) {
 }
 
 func TestSetInjectors(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
+	wj := NewWithServiceName("no_exist_service")
 
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
-	err = wj.DoWire()
+	err := wj.DoWire()
 	// no dependency to wire
 	assert.Error(t, err)
 
-	wj.SetInjectors(wire.Injectors)
+	wj.SetInjectors(mockup.Injectors)
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
@@ -199,13 +208,13 @@ func TestSetInjectors(t *testing.T) {
 }
 
 func TestSetEagerInjectors(t *testing.T) {
-	wj, err := New("test")
-	assert.NoError(t, err, "Failed to New()")
+	wj := New()
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.SetEagerInjectors(wire.EagerInjectors)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.SetEagerInjectors(mockup.EagerInjectors)
 
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	err = wj.Close()
@@ -213,16 +222,16 @@ func TestSetEagerInjectors(t *testing.T) {
 }
 
 func TestAddInjector(t *testing.T) {
-	wj, err := New("test")
-	assert.NoError(t, err, "Failed to New()")
+	wj := New()
 
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	// no dependency to wire
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
@@ -231,14 +240,14 @@ func TestAddInjector(t *testing.T) {
 }
 
 func TestAddEagerInjector(t *testing.T) {
-	wj, err := New("test")
-	assert.NoError(t, err, "Failed to New()")
+	wj := New()
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 
-	err = wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	err = wj.Close()
@@ -246,20 +255,21 @@ func TestAddEagerInjector(t *testing.T) {
 }
 
 func TestDoWire(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
+	wj := NewWithServiceName("no_exist_service")
 
-	// no wire.Injectors to wire
-	err = wj.DoWire()
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddEagerInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddEagerInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
@@ -269,20 +279,21 @@ func TestDoWire(t *testing.T) {
 }
 
 func TestDoWireWithoutEagerInjectors(t *testing.T) {
-	wj, err := New("no_exist_service")
-	assert.NoError(t, err, "Failed to New()")
+	wj := NewWithServiceName("no_exist_service")
 
-	// no wire.Injectors to wire
-	err = wj.DoWire()
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
 	assert.Error(t, err)
 
-	wj.AddInjector("ossiconesblockchain", wire.InjectOssiconesBlockchain)
-	wj.AddInjector("defaultexplorerserver", wire.InjectDefaultExplorerServer)
-	wj.AddInjector("defaultrestapiserver", wire.InjectDefaultRESTAPIServer)
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
 	wj.SetActivatingModules([]string{
-		"ossiconesblockchain",
-		"defaultexplorerserver",
-		"defaultrestapiserver",
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
 	})
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
@@ -292,96 +303,100 @@ func TestDoWireWithoutEagerInjectors(t *testing.T) {
 }
 
 func TestGetConfig(t *testing.T) {
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := New().
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
 	config := wj.GetConfig()
 	assert.Equal(t, "defaultVal", config.GetString("no_exists", "defaultVal"))
-	assert.Equal(t, "Genesis OssiconesBlock", config.GetString("ossicones_blockchain_genesis_block_data", "defaultVal"))
+	assert.Equal(t, "Genesis OssiconesBlock", config.GetString("ossicones_genesis_block_data", "defaultVal"))
 
-	err = wj.Close()
+	err := wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
 }
 
 func TestGetModule(t *testing.T) {
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := New().
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
 	viperconfig := wj.GetModule("viperconfig")
 	assert.NotNil(t, viperconfig)
-	ossiconesblockchain := wj.GetModule("ossiconesblockchain")
-	assert.NotNil(t, ossiconesblockchain)
-	defaultexplorerserver := wj.GetModule("defaultexplorerserver")
-	assert.NotNil(t, defaultexplorerserver)
-	defaultrestapiserver := wj.GetModule("defaultrestapiserver")
-	assert.NotNil(t, defaultrestapiserver)
+	mockup_blockchain := wj.GetModule("mockup_blockchain")
+	assert.NotNil(t, mockup_blockchain)
+	mockup_explorerserver := wj.GetModule("mockup_explorerserver")
+	assert.NotNil(t, mockup_explorerserver)
+	mockup_restapiserver := wj.GetModule("mockup_restapiserver")
+	assert.NotNil(t, mockup_restapiserver)
 	assert.Nil(t, wj.GetModule("no_exists"))
 
-	wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	vc := wj.GetModule("viperconfig")
 	assert.NotNil(t, vc)
-	obc := wj.GetModule("ossiconesblockchain")
+	obc := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, obc)
-	des := wj.GetModule("defaultexplorerserver")
+	des := wj.GetModule("mockup_explorerserver")
 	assert.NotNil(t, des)
-	drs := wj.GetModule("defaultrestapiserver")
+	drs := wj.GetModule("mockup_restapiserver")
 	assert.NotNil(t, drs)
 	assert.Nil(t, wj.GetModule("no_exists"))
 
 	assert.Equal(t, viperconfig, vc)
-	assert.Equal(t, ossiconesblockchain, obc)
-	assert.Equal(t, defaultexplorerserver, des)
-	assert.Equal(t, defaultrestapiserver, drs)
+	assert.Equal(t, mockup_blockchain, obc)
+	assert.Equal(t, mockup_explorerserver, des)
+	assert.Equal(t, mockup_restapiserver, drs)
 
 	err = wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
 }
 
 func TestGetModuleByType(t *testing.T) {
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := New().
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
 	viperconfig := wj.GetModuleByType((*config.Config)(nil))
 	assert.NotNil(t, viperconfig)
-	ossiconesblockchain := wj.GetModuleByType((*wire.Blockchain)(nil))
-	assert.NotNil(t, ossiconesblockchain)
-	defaultexplorerserver := wj.GetModuleByType((*wire.ExplorerServer)(nil))
-	assert.NotNil(t, defaultexplorerserver)
-	defaultrestapiserver := wj.GetModuleByType((*wire.RESTAPIServer)(nil))
-	assert.NotNil(t, defaultrestapiserver)
+	mockup_blockchain := wj.GetModuleByType((*mockup.Blockchain)(nil))
+	assert.NotNil(t, mockup_blockchain)
+	mockup_explorerserver := wj.GetModuleByType((*mockup.ExplorerServer)(nil))
+	assert.NotNil(t, mockup_explorerserver)
+	mockup_restapiserver := wj.GetModuleByType((*mockup.RESTAPIServer)(nil))
+	assert.NotNil(t, mockup_restapiserver)
 	assert.Nil(t, wj.GetModuleByType((*io.Writer)(nil)))
 	assert.Nil(t, wj.GetModuleByType(nil))
 
-	wj.DoWire()
+	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
 	vc := wj.GetModuleByType((*config.Config)(nil))
 	assert.NotNil(t, vc)
-	obc := wj.GetModuleByType((*wire.Blockchain)(nil))
+	obc := wj.GetModuleByType((*mockup.Blockchain)(nil))
 	assert.NotNil(t, obc)
-	des := wj.GetModuleByType((*wire.ExplorerServer)(nil))
+	des := wj.GetModuleByType((*mockup.ExplorerServer)(nil))
 	assert.NotNil(t, des)
-	drs := wj.GetModuleByType((*wire.RESTAPIServer)(nil))
+	drs := wj.GetModuleByType((*mockup.RESTAPIServer)(nil))
 	assert.NotNil(t, drs)
 	assert.Nil(t, wj.GetModuleByType((*io.Writer)(nil)))
 	assert.Nil(t, wj.GetModuleByType(nil))
 
 	assert.Equal(t, viperconfig, vc)
-	assert.Equal(t, ossiconesblockchain, obc)
-	assert.Equal(t, defaultexplorerserver, des)
-	assert.Equal(t, defaultrestapiserver, drs)
+	assert.Equal(t, mockup_blockchain, obc)
+	assert.Equal(t, mockup_explorerserver, des)
+	assert.Equal(t, mockup_restapiserver, drs)
 
 	err = wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
 }
 
 func TestClose(t *testing.T) {
-	wj, err := NewWithInjectors("test", wire.Injectors, wire.EagerInjectors)
-	assert.NoError(t, err, "Failed to NewWithInjectors()")
+	wj := New().
+		SetInjectors(mockup.Injectors).
+		SetEagerInjectors(mockup.EagerInjectors)
 
-	err = wj.Close()
+	err := wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
 
 	err = wj.DoWire()
@@ -389,21 +404,21 @@ func TestClose(t *testing.T) {
 
 	viperconfig := wj.GetModule("viperconfig")
 	assert.NotNil(t, viperconfig)
-	ossiconesblockchain := wj.GetModule("ossiconesblockchain")
-	assert.NotNil(t, ossiconesblockchain)
-	defaultexplorerserver := wj.GetModule("defaultexplorerserver")
-	assert.NotNil(t, defaultexplorerserver)
-	defaultrestapiserver := wj.GetModule("defaultrestapiserver")
-	assert.NotNil(t, defaultrestapiserver)
+	mockup_blockchain := wj.GetModule("mockup_blockchain")
+	assert.NotNil(t, mockup_blockchain)
+	mockup_explorerserver := wj.GetModule("mockup_explorerserver")
+	assert.NotNil(t, mockup_explorerserver)
+	mockup_restapiserver := wj.GetModule("mockup_restapiserver")
+	assert.NotNil(t, mockup_restapiserver)
 	assert.Nil(t, wj.GetModule("no_exists"))
 
 	vc := wj.GetModule("viperconfig")
 	assert.NotNil(t, vc)
-	obc := wj.GetModule("ossiconesblockchain")
+	obc := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, obc)
-	des := wj.GetModule("defaultexplorerserver")
+	des := wj.GetModule("mockup_explorerserver")
 	assert.NotNil(t, des)
-	drs := wj.GetModule("defaultrestapiserver")
+	drs := wj.GetModule("mockup_restapiserver")
 	assert.NotNil(t, drs)
 	assert.Nil(t, wj.GetModule("no_exists"))
 

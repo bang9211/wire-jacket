@@ -265,6 +265,11 @@ func TestDoWire(t *testing.T) {
 	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
 	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
 	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupRESTAPIServer)
+
+	wj.SetActivatingModules([]string{})
+	err = wj.DoWire()
+	assert.Error(t, err)
+
 	wj.SetActivatingModules([]string{
 		"mockup_database",
 		"mockup_blockchain",
@@ -425,3 +430,35 @@ func TestClose(t *testing.T) {
 	err = wj.Close()
 	assert.NoError(t, err, "Failed to Close()")
 }
+
+func TestDoWireFailedInjectorCall(t *testing.T) {
+	wj := New()
+
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
+	assert.Error(t, err)
+
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupInvalidReturnTest)
+
+	wj.SetActivatingModules([]string{
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
+	})
+	err = wj.DoWire()
+	assert.Error(t, err)
+
+	err = wj.Close()
+	assert.NoError(t, err, "Failed to Close()")
+}
+
+// func TestCheckInjectionResult(t *testing.T) {
+// 	wj := New()
+// 	values := []reflect.Value{reflect.ValueOf(true)}
+// 	_, err := wj.checkInjectionResult(values)
+// 	assert.Error(t, err)
+// }

@@ -87,3 +87,13 @@ func InjectMockupRESTAPIServer(
 	wire.Build(NewMockupRESTAPIServer)
 	return nil, nil
 }
+
+// InjectMockupInvalidReturnTest injects dependencies and inits of
+// RESTAPIServer and return invalid format.
+func InjectMockupInvalidReturnTest(
+	config config.Config,
+	blockchain Blockchain,
+) (RESTAPIServer, func(), error) {
+	wire.Build(NewMockupRESTAPIServer)
+	return nil, func() {}, nil
+}

@@ -35,11 +35,8 @@ func NewMockupBlockchain(db Database) Blockchain {
 }
 
 func (mbc *MockupBlockchain) Init() error {
-	err := mbc.db.Connect()
+	mbc.db.Connect()
 	mbc.AddBlock(genesisBlockData)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

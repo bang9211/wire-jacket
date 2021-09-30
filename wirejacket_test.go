@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/bang9211/wire-jacket/internal/config"
-	"github.com/bang9211/wire-jacket/mockup"
+	"github.com/bang9211/wire-jacket/internal/mockup"
 	"github.com/stretchr/testify/assert"
 )
 

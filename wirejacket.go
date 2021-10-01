@@ -28,10 +28,10 @@ type WireJacket struct {
 
 // New creates empty WireJacket.
 // If you want to use more than one WireJacket on the same system,
-// Use NewWithServiceName with unique serviceName.
-//
+// Use NewWithServiceName with unique serviceName instead of New().
 // By default, WireJacket reads list of module name to activate
 // in 'modules' value of config.
+// 
 // But Wire-Jacket considered The Twelve Factors. Config can be
 // overrided by envrionment variable.(see viperconfig.go)
 // So, when using more than one WireJacket on the same system,
@@ -135,26 +135,28 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example (serviceName=ossicones) :
+// Example of app.conf (serviceName=ossicones) :
 //
-// # app.conf
 // ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
 //
 //
-// # definition in wire.go
+// definition in wire.go
+// 
 // func InjectViperConfig() (config.Config, error) { ... }
 // func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
-// # injectors can be like this.
+// injectors can be like this.
+// 
 // var injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
-// # eagerInjectors can be like this.
+// eagerInjectors can be like this.
+// 
 // var eagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
@@ -174,26 +176,28 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example (serviceName=ossicones) :
+// Example of app.conf (serviceName=ossicones) :
 //
-// # app.conf
 // ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
 //
 //
-// # definition in wire.go
+// definition in wire.go
+// 
 // func InjectViperConfig() (config.Config, error) { ... }
 // func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
-// # injectors can be like this.
+// injectors can be like this.
+// 
 // var injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
-// # eagerInjectors can be like this.
+// eagerInjectors can be like this.
+// 
 // var eagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,

@@ -28,7 +28,7 @@ In this example, ossicones is simple blockchain package.
 It consisted of only 3 components: Config, Database, Blockchain.
 
 Define simple two Interface, Implement.
-```
+```go
 type Database interface {
     Connect() bool
     Close() error   //necessary for Wire Jacket
@@ -53,7 +53,7 @@ func (m *MySQL) Close() error {
 }
 ```
 
-```
+```go
 type Blockchain interface {
     Init() error
     Close() error   //necessary for Wire Jacket
@@ -95,7 +95,7 @@ And close modules gracefully. So the modules are closable,
 have to implment Close().
 
 ### 1. Create wire.go with injectors.
-```
+```go
 package wire
 
 func InjectMySQL(cfg config.Config) (Database, error) {
@@ -139,7 +139,7 @@ Choose modules to use mysql, ossicones.
 Database binds to MySQL, Blockchain binds to Ossicones.
 
 ### 4. Create wirejacket, Set injectors, Call DoWire().
-```
+```go
 wj := wirejacket.New().
     SetInjectors(wire.Injectors).
     SetEagerInjectors(wire.EagerInjectors)

@@ -92,3 +92,33 @@ func TestInjectMockupRESTAPIServer(t *testing.T) {
 	Equal(t, mockupRESTAPIServer.GetPaths(), []string{"/"})
 	NoError(t, mockupRESTAPIServer.Close())
 }
+
+func TestInjectMockupInvalidReturnTest(t *testing.T) {
+	viperConfig := config.NewViperConfig()
+	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+
+	mockupDB, err := InjectMockupDB(viperConfig)
+	NotNil(t, mockupDB)
+	NoError(t, err, "Failed to InjectMockupDB()")
+	Implements(t, (*Database)(nil), mockupDB, "It must implements of interface Database")
+
+	mockbupBlockchain, err := InjectMockupBlockchain(mockupDB)
+	NotNil(t, mockbupBlockchain)
+	NoError(t, err, "Failed to InjectMockupBlockchain()")
+	Implements(t, (*Blockchain)(nil), mockbupBlockchain, "It must implements of interface Blockchain")
+	NoError(t, mockbupBlockchain.Init(), "Failed to Init()")
+
+	testImpl, f, err := InjectMockupInvalidReturnTest(viperConfig, mockbupBlockchain)
+	NotNil(t, testImpl)
+	NotNil(t, f)
+	f()
+	NoError(t, err, "Failed to InjectMockupInvalidImplTest()")
+}
+
+func TestInjectMockupInvalidImplTestj(t *testing.T) {
+	testImpl, err := InjectMockupInvalidImplTest()
+	NotNil(t, testImpl)
+	NoError(t, err, "Failed to InjectMockupInvalidImplTest()")
+	NoError(t, testImpl.Test())
+	Error(t, testImpl.Close())
+}

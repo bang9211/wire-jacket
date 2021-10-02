@@ -91,11 +91,6 @@ func (vc *ViperConfig) Load() error {
 		log.Printf("Failed to read config file default values will be used : %s", err)
 	}
 
-	err := vc.viper.Unmarshal(vc)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

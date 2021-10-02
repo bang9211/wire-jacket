@@ -97,3 +97,9 @@ func InjectMockupInvalidReturnTest(
 	wire.Build(NewMockupRESTAPIServer)
 	return nil, func() {}, nil
 }
+
+// InjectMockupInvalidImplTest injects test dependency for test.
+func InjectMockupInvalidImplTest() (TestInterface, error) {
+	wire.Build(NewTestImplement)
+	return nil, nil
+}

@@ -31,7 +31,7 @@ type WireJacket struct {
 // Use NewWithServiceName with unique serviceName instead of New().
 // By default, WireJacket reads list of module name to activate
 // in 'modules' value of config.
-// 
+//
 // But Wire-Jacket considered The Twelve Factors. Config can be
 // overrided by envrionment variable.(see viperconfig.go)
 // So, when using more than one WireJacket on the same system,
@@ -141,7 +141,7 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 //
 //
 // definition in wire.go
-// 
+//
 // func InjectViperConfig() (config.Config, error) { ... }
 // func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
@@ -149,14 +149,14 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 //
 //
 // injectors can be like this.
-// 
+//
 // var injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
 // eagerInjectors can be like this.
-// 
+//
 // var eagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
@@ -182,7 +182,7 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 //
 //
 // definition in wire.go
-// 
+//
 // func InjectViperConfig() (config.Config, error) { ... }
 // func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
@@ -190,14 +190,14 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 //
 //
 // injectors can be like this.
-// 
+//
 // var injectors = map[string]interface{}{
 // 		"viperconfig":         InjectViperConfig,
 // 		"ossiconesblockchain": InjectOssiconesBlockchain,
 // }
 //
 // eagerInjectors can be like this.
-// 
+//
 // var eagerInjectors = map[string]interface{}{
 // 		"defaultexplorerserver": InjectDefaultExplorerServer,
 // 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
@@ -255,7 +255,7 @@ func (wj *WireJacket) DoWire() error {
 	if len(wj.getInjectors()) == 0 {
 		return fmt.Errorf("no injectors to wire")
 	}
-	if len(wj.activatingModuleNames) == 0 {
+	if len(wj.activatingModuleNames) == 1 { //default viperconfig
 		return fmt.Errorf("no activating modules to wire")
 	}
 	for moduleName, eagerInjector := range wj.eagerInjectors {
@@ -386,7 +386,7 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 	var module Module
 	var ok bool
 	if len(returnVal) == 1 { // return (module)
-		if !returnVal[0].CanInterface() {
+		if !returnVal[0].IsValid() || !returnVal[0].CanInterface() {
 			return nil, fmt.Errorf(
 				"returnVal(%s) can't be interface",
 				returnVal[0],
@@ -398,7 +398,7 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 				"failed to cast returnVal(%s) to Module", returnVal[0])
 		}
 	} else { // return (module, error)
-		if !returnVal[1].CanInterface() {
+		if !returnVal[1].IsValid() || !returnVal[1].CanInterface() {
 			return nil, fmt.Errorf(
 				"failed to cast error(%s) to interface", returnVal[1])
 		}
@@ -407,7 +407,7 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 			return nil, fmt.Errorf(
 				"failed to inject : %s", err)
 		}
-		if !returnVal[0].CanInterface() {
+		if !returnVal[0].IsValid() || !returnVal[0].CanInterface() {
 			return nil, fmt.Errorf(
 				"failed to cast returnVal(%s) to interface", returnVal[0])
 		}

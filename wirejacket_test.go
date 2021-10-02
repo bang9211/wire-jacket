@@ -3,6 +3,7 @@ package wirejacket
 import (
 	"io"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/bang9211/wire-jacket/internal/config"
@@ -396,6 +397,65 @@ func TestGetModuleByType(t *testing.T) {
 	assert.NoError(t, err, "Failed to Close()")
 }
 
+func TestDoWireFailedInjectorCall(t *testing.T) {
+	wj := New()
+
+	// no mockup.Injectors to wire
+	err := wj.DoWire()
+	assert.Error(t, err)
+
+	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
+	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
+	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
+	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupInvalidReturnTest)
+
+	wj.SetActivatingModules([]string{
+		"mockup_database",
+		"mockup_blockchain",
+		"mockup_explorerserver",
+		"mockup_restapiserver",
+	})
+	err = wj.DoWire()
+	assert.Error(t, err)
+
+	err = wj.Close()
+	assert.NoError(t, err, "Failed to Close()")
+}
+
+func TestCheckInjectionResult(t *testing.T) {
+	wj := New()
+	values := []reflect.Value{reflect.Value{}}
+	_, err := wj.checkInjectionResult(values)
+	assert.Error(t, err)
+
+	values = []reflect.Value{reflect.ValueOf(true)}
+	_, err = wj.checkInjectionResult(values)
+	assert.Error(t, err)
+
+	values = []reflect.Value{reflect.Value{}, reflect.ValueOf(true)}
+	_, err = wj.checkInjectionResult(values)
+	assert.Error(t, err)
+
+	// get dependencies
+	injectorFunc := reflect.ValueOf(mockup.InjectMockupDB)
+	dependencies, err := wj.getDependencies("mockup_database", injectorFunc.Type())
+
+	// call injector
+	returnVal := injectorFunc.Call(dependencies)
+
+	values = []reflect.Value{reflect.Value{}, reflect.Value{}}
+	_, err = wj.checkInjectionResult(values)
+	assert.Error(t, err)
+
+	values = []reflect.Value{reflect.Value{}, returnVal[1]}
+	_, err = wj.checkInjectionResult(values)
+	assert.Error(t, err)
+
+	values = []reflect.Value{reflect.ValueOf(true), returnVal[1]}
+	_, err = wj.checkInjectionResult(values)
+	assert.Error(t, err)
+}
+
 func TestClose(t *testing.T) {
 	wj := New().
 		SetInjectors(mockup.Injectors).
@@ -431,34 +491,12 @@ func TestClose(t *testing.T) {
 	assert.NoError(t, err, "Failed to Close()")
 }
 
-func TestDoWireFailedInjectorCall(t *testing.T) {
+func TestCloseErro(t *testing.T) {
 	wj := New()
+	wj.AddEagerInjector("test", mockup.InjectMockupInvalidImplTest)
+	assert.NoError(t, wj.Close())
 
-	// no mockup.Injectors to wire
-	err := wj.DoWire()
-	assert.Error(t, err)
-
-	wj.AddInjector("mockup_database", mockup.InjectMockupDB)
-	wj.AddInjector("mockup_blockchain", mockup.InjectMockupBlockchain)
-	wj.AddEagerInjector("mockup_explorerserver", mockup.InjectMockupExplorerServer)
-	wj.AddEagerInjector("mockup_restapiserver", mockup.InjectMockupInvalidReturnTest)
-
-	wj.SetActivatingModules([]string{
-		"mockup_database",
-		"mockup_blockchain",
-		"mockup_explorerserver",
-		"mockup_restapiserver",
-	})
-	err = wj.DoWire()
-	assert.Error(t, err)
-
-	err = wj.Close()
-	assert.NoError(t, err, "Failed to Close()")
+	wj.SetActivatingModules([]string{"test"})
+	wj.GetModule("test")
+	assert.NoError(t, wj.Close())
 }
-
-// func TestCheckInjectionResult(t *testing.T) {
-// 	wj := New()
-// 	values := []reflect.Value{reflect.ValueOf(true)}
-// 	_, err := wj.checkInjectionResult(values)
-// 	assert.Error(t, err)
-// }

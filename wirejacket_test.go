@@ -15,7 +15,7 @@ var emptyInjectors = map[string]interface{}{}
 var emptyEagerInjectors = map[string]interface{}{}
 
 func TestNewDefaultConfigCase(t *testing.T) {
-	// test.conf(.envfile)
+	// app.conf(.envfile)
 	wj := New().
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
@@ -28,8 +28,8 @@ func TestNewDefaultConfigCase(t *testing.T) {
 }
 
 func TestNewWithServiceNameDefaultConfigCase(t *testing.T) {
-	// test.conf(.envfile)
-	wj := NewWithServiceName("test").
+	// app.conf(.envfile)
+	wj := NewWithServiceName("test example").
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
@@ -46,7 +46,7 @@ func TestWireJacketSpecifiedConfigCase(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "test.json")
 	// test.json
-	wj := NewWithServiceName("test").
+	wj := NewWithServiceName("test example").
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
@@ -106,7 +106,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithEmptyInjectors(t *testing.T) {
-	wj := NewWithServiceName("test").
+	wj := NewWithServiceName("test example").
 		SetInjectors(emptyInjectors).
 		SetEagerInjectors(emptyEagerInjectors)
 

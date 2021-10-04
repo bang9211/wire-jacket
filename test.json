@@ -1,5 +1,5 @@
 {
-    "test_modules":[
+    "test_example_modules":[
         "mockup_database", 
         "mockup_blockchain",
         "mockup_explorerserver",

@@ -79,6 +79,10 @@ func New() *WireJacket {
 //
 // If serviceName exists, WireJacket reads value of
 // '{serviceName}_modules' in config.
+// the spaces of serviceName will be changed to '_'.
+// serviceName will be used in config, we don't recommend it
+// to contain space.
+//
 // By default, WireJacket reads app.conf. Or you can specify
 // file with '--config' flag.(see viperconfig.go)
 //
@@ -107,6 +111,11 @@ func NewWithServiceName(serviceName string) *WireJacket {
 
 func (wj *WireJacket) readActivatingModules(serviceName string) []string {
 	var activatingModuleNames []string
+	if strings.Contains(serviceName, " ") {
+		serviceName = strings.ReplaceAll(
+			strings.Join(strings.Fields(serviceName), " "),
+			" ", "_")
+	}
 	if serviceName == "" {
 		activatingModuleNames = wj.config.GetStringSlice(
 			"modules", []string{},

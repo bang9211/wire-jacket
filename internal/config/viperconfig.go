@@ -24,7 +24,7 @@ type ViperConfig struct {
 // Wire-Jacket uses envfile format if there is no file extension.
 // You can use the --config flag to explicitly specify a config file.
 //
-// The Twelve-Factors recommands use environment variables for
+// The Twelve-Factors recommends use environment variables for
 // configuration. Because it's good in container, cloud environments.
 // However, it is not efficient to express all configs as environment
 // variables.

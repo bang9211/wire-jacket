@@ -195,7 +195,7 @@ Automatically maintains and recycles one singleton object.
 
 ### 2. Binding based environment-variable for cloud.
 
-The Twelve-Factors recommands use environment variables for
+The Twelve-Factors recommends use environment variables for
 configuration. Because it's good in container, cloud environments.
 However, it is not efficient to express all configs as environment
 variables.

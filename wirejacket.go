@@ -1,3 +1,4 @@
+// Package wirejacket is a IoC Container of google/wire for cloud-native
 package wirejacket
 
 import (
@@ -9,6 +10,9 @@ import (
 	"github.com/bang9211/wire-jacket/internal/config"
 	"github.com/bang9211/wire-jacket/internal/utils"
 )
+
+const DefaultConfigName = "viperconfig"
+const DefaultModulesKey = "modules"
 
 // All the module should have Close().
 type Module interface {
@@ -43,9 +47,9 @@ type WireJacket struct {
 // By default, WireJacket reads app.conf. Or you can specify
 // file with '--config' flag.(see viperconfig.go)
 //
-// Example in app.conf without serviceName
+// modules example in app.conf without serviceName
 //
-// modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+// ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
 // SetActivatingModules can specify activating modules without config.
 // But this way is needed re-compile for changing module.
@@ -57,11 +61,11 @@ func New() *WireJacket {
 		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
-		modules:                map[string]Module{"viperconfig": viperConfig},
+		modules:                map[string]Module{DefaultConfigName: viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
 	wj.activatingModuleNames = wj.readActivatingModules("")
-	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
+	wj.activatingModuleNames = append(wj.activatingModuleNames, DefaultConfigName)
 
 	return wj
 }
@@ -86,9 +90,9 @@ func New() *WireJacket {
 // By default, WireJacket reads app.conf. Or you can specify
 // file with '--config' flag.(see viperconfig.go)
 //
-// Example in app.conf with serviceName(ossicones)
+// modules example in app.conf with serviceName(ossicones)
 //
-// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+// ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
 // SetActivatingModules can specify activating modules without config.
 // But this way is needed re-compile for changing module.
@@ -100,11 +104,11 @@ func NewWithServiceName(serviceName string) *WireJacket {
 		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
-		modules:                map[string]Module{"viperconfig": viperConfig},
+		modules:                map[string]Module{DefaultConfigName: viperConfig},
 		sortedModulesByCreated: []Module{viperConfig},
 	}
 	wj.activatingModuleNames = wj.readActivatingModules(serviceName)
-	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
+	wj.activatingModuleNames = append(wj.activatingModuleNames, DefaultConfigName)
 
 	return wj
 }
@@ -118,11 +122,11 @@ func (wj *WireJacket) readActivatingModules(serviceName string) []string {
 	}
 	if serviceName == "" {
 		activatingModuleNames = wj.config.GetStringSlice(
-			"modules", []string{},
+			DefaultModulesKey, []string{},
 		)
 	} else {
 		activatingModuleNames = wj.config.GetStringSlice(
-			strings.ToLower(serviceName)+"_modules", []string{},
+			strings.ToLower(serviceName)+"_"+DefaultModulesKey, []string{},
 		)
 	}
 
@@ -134,7 +138,7 @@ func (wj *WireJacket) readActivatingModules(serviceName string) []string {
 // It overwrites list of modules to activate.
 func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 	wj.activatingModuleNames = moduleNames
-	wj.activatingModuleNames = append(wj.activatingModuleNames, "viperconfig")
+	wj.activatingModuleNames = append(wj.activatingModuleNames, DefaultConfigName)
 }
 
 // SetInjectors sets injectors to inject lazily.
@@ -144,15 +148,15 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example of app.conf (serviceName=ossicones) :
+// modules example of app.conf (serviceName=ossicones) :
 //
-// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+// ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
 //
 // definition in wire.go
 //
-// func InjectViperConfig() (config.Config, error) { ... }
-// func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
+// func InjectMySQL(config config.Config) (database.Database, error) { ... }
+// func InjectOssiconesBlockchain(config config.Config, database.Database) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
@@ -160,15 +164,15 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // injectors can be like this.
 //
 // var injectors = map[string]interface{}{
-// 		"viperconfig":         InjectViperConfig,
-// 		"ossiconesblockchain": InjectOssiconesBlockchain,
+// 		"mysql": 				InjectMySQL,
+// 		"ossiconesblockchain": 	InjectOssiconesBlockchain,
 // }
 //
 // eagerInjectors can be like this.
 //
 // var eagerInjectors = map[string]interface{}{
-// 		"defaultexplorerserver": InjectDefaultExplorerServer,
-// 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
+// 		"defaultexplorerserver": 	InjectDefaultExplorerServer,
+// 		"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
 // }
 //
 //
@@ -185,15 +189,15 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // if serviceName exists, value of '{serviceName}_modules' in config.
 //
 //
-// Example of app.conf (serviceName=ossicones) :
+// modules example of app.conf (serviceName=ossicones) :
 //
-// ossicones_modules=mockup_database mockup_blockchain mockup_explorerserver mockup_restapiserver
+// ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
 //
 // definition in wire.go
 //
-// func InjectViperConfig() (config.Config, error) { ... }
-// func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) { ... }
+// func InjectMySQL(config config.Config) (database.Database, error) { ... }
+// func InjectOssiconesBlockchain(config config.Config, database.Database) (blockchain.Blockchain, error) { ... }
 // func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
@@ -201,15 +205,15 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // injectors can be like this.
 //
 // var injectors = map[string]interface{}{
-// 		"viperconfig":         InjectViperConfig,
-// 		"ossiconesblockchain": InjectOssiconesBlockchain,
+// 		"mysql": 				InjectMySQL,
+// 		"ossiconesblockchain": 	InjectOssiconesBlockchain,
 // }
 //
 // eagerInjectors can be like this.
 //
 // var eagerInjectors = map[string]interface{}{
-// 		"defaultexplorerserver": InjectDefaultExplorerServer,
-// 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
+// 		"defaultexplorerserver": 	InjectDefaultExplorerServer,
+// 		"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
 // }
 //
 //

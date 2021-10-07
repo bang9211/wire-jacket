@@ -9,7 +9,7 @@ import (
 )
 
 // ==============================================
-// Database Interface - MockupDB Implment example
+// Database Interface - MockupDB Implement example
 // ==============================================
 type Database interface {
 	// Connect DB.
@@ -123,7 +123,7 @@ var EagerInjectors = map[string]interface{}{
 // Default use case to use New().
 // Wire-Jacket defaultly uses 'app.conf' for setting modules
 // to activate. Or you can use the flag '--config {file_name}'.
-func Example_New() {
+func Example() {
 	// Create wirejacket and set injectors.
 	wj := wirejacket.New().
 		SetEagerInjectors(EagerInjectors).
@@ -144,7 +144,7 @@ func Example_New() {
 }
 
 // Second use case to use NewWithServiceName().
-func Example_NewWithServiceName() {
+func Example_second() {
 	// Create wirejacket with serviceName.
 	wj := wirejacket.NewWithServiceName("example_service")
 

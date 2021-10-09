@@ -191,7 +191,7 @@ For example, DB Skip mode that does not use DB or emergency
 processing mode that does not actually connect with other nodes 
 can be applied by replacing module and restarting.
 
-And it helps not to use singletone as a global variable.
+And it helps not to use singleton as a global variable.
 Automatically maintains and recycles one singleton object.
 
 ### 2. Binding based environment-variable for cloud.

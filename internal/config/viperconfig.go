@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/bang9211/wire-jacket/internal/utils"
@@ -12,13 +13,15 @@ import (
 )
 
 var defaultConfigFile = "app.conf"
+var once sync.Once
+var viperConfig *ViperConfig
 
 type ViperConfig struct {
 	viper *viper.Viper
 	flag  *flag.FlagSet
 }
 
-// NewViperConfig returns new ViperConfig.
+// GetOrCreate returns new ViperConfig.
 //
 // Implicitly, Wire-Jacket use app.conf as default config file if exists.
 // Wire-Jacket uses envfile format if there is no file extension.
@@ -40,10 +43,14 @@ type ViperConfig struct {
 //
 // But viper can't integrates all complex structure with environment
 // variables. you can check it in TestLoadDefault of viperconfig_test.go.
-func NewViperConfig() Config {
-	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
-	vc.init()
-	return &vc
+func GetOrCreate() Config {
+	if viperConfig == nil {
+		once.Do(func() {
+			viperConfig = &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+			viperConfig.init()
+		})
+	}
+	return viperConfig
 }
 
 func (vc *ViperConfig) init() {

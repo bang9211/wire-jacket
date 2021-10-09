@@ -1,11 +1,13 @@
 package config
 
 import (
+	"flag"
 	"math"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/spf13/viper"
 	. "github.com/stretchr/testify/assert"
 )
 
@@ -74,7 +76,7 @@ func TestImplementConfig(t *testing.T) {
 }
 
 func TestLoadDefault(t *testing.T) {
-	cfg := NewViperConfig()
+	cfg := GetOrCreate()
 	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -98,7 +100,8 @@ func TestLoadDefault(t *testing.T) {
 func TestLoadConfigFileNotFound(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/no_exist.conf")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -122,7 +125,8 @@ func TestLoadConfigFileNotFound(t *testing.T) {
 func TestLoadUnsupportedExt(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/unsupported.test")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -146,7 +150,8 @@ func TestLoadUnsupportedExt(t *testing.T) {
 func TestLoadInvalidFormat(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/invalid_format.yaml")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, defaultBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -170,7 +175,8 @@ func TestLoadInvalidFormat(t *testing.T) {
 func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -194,7 +200,8 @@ func TestLoadJSON(t *testing.T) {
 func TestLoadYAML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.yaml")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -218,7 +225,8 @@ func TestLoadYAML(t *testing.T) {
 func TestLoadTOML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.toml")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	Equal(t, testBoolVal, cfg.GetBool("test_viper_config_bool_value", defaultBoolVal))
@@ -254,7 +262,8 @@ func TestGetBool(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/bool_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetBoolTests {
@@ -282,7 +291,8 @@ func TestGetString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/string_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetStringTests {
@@ -309,7 +319,8 @@ func TestGetInt(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetIntTests {
@@ -336,7 +347,8 @@ func TestGetInt32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int32_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetInt32Tests {
@@ -363,7 +375,8 @@ func TestGetInt64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int64_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetInt64Tests {
@@ -390,7 +403,8 @@ func TestGetUint(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetUintTests {
@@ -417,7 +431,8 @@ func TestGetUint32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint32_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetUint32Tests {
@@ -444,7 +459,8 @@ func TestGetUint64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint64_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetUint64Tests {
@@ -467,7 +483,8 @@ func TestGetFloat64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/float64_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetFloat64Tests {
@@ -490,7 +507,8 @@ func TestGetTime(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/time_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetTimeTests {
@@ -513,7 +531,8 @@ func TestGetDuration(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/duration_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetDurationTests {
@@ -537,7 +556,8 @@ func TestGetIntSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/intslice_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetIntSliceTests {
@@ -561,7 +581,8 @@ func TestGetStringSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringslice_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetStringSliceTests {
@@ -590,7 +611,8 @@ func TestGetStringMap(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmap_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetStringMapTests {
@@ -619,7 +641,8 @@ func TestGetStringMapString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapstring_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetStringMapTests {
@@ -648,7 +671,8 @@ func TestGetStringMapSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapslice_test.json")
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	defer cfg.Close()
 
 	for _, test := range GetStringMapStringTests {
@@ -659,6 +683,7 @@ func TestGetStringMapSlice(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	cfg := NewViperConfig()
+	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg.init()
 	NoError(t, cfg.Close(), "Failed to close ViperConfig")
 }

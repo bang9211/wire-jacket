@@ -56,7 +56,7 @@ type WireJacket struct {
 // The list of activating modules is used as key of injectors
 // to call.
 func New() *WireJacket {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	wj := &WireJacket{
 		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
@@ -99,7 +99,7 @@ func New() *WireJacket {
 // The list of activating modules is used as key of injectors
 // to call.
 func NewWithServiceName(serviceName string) *WireJacket {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	wj := &WireJacket{
 		config:                 viperConfig,
 		injectors:              map[string]interface{}{},
@@ -434,8 +434,8 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 }
 
 // GetConfig returns config object.
-func (wj *WireJacket) GetConfig() config.Config {
-	return wj.config
+func GetConfig() config.Config {
+	return config.GetOrCreate()
 }
 
 // GetModule finds module using moduleName and returns module if exists.

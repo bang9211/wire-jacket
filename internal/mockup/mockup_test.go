@@ -8,7 +8,7 @@ import (
 )
 
 func TestInjectMockupDB(t *testing.T) {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
 
 	mysql, err := InjectMockupDB(viperConfig)
@@ -21,7 +21,7 @@ func TestInjectMockupDB(t *testing.T) {
 }
 
 func TestInjectMockupBlockchain(t *testing.T) {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
 
 	mockupDB, err := InjectMockupDB(viperConfig)
@@ -44,7 +44,7 @@ func TestInjectMockupBlockchain(t *testing.T) {
 }
 
 func TestInjectMockupExplorerServer(t *testing.T) {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
 
 	mockupDB, err := InjectMockupDB(viperConfig)
@@ -69,7 +69,7 @@ func TestInjectMockupExplorerServer(t *testing.T) {
 }
 
 func TestInjectMockupRESTAPIServer(t *testing.T) {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
 
 	mockupDB, err := InjectMockupDB(viperConfig)
@@ -94,7 +94,7 @@ func TestInjectMockupRESTAPIServer(t *testing.T) {
 }
 
 func TestInjectMockupInvalidReturnTest(t *testing.T) {
-	viperConfig := config.NewViperConfig()
+	viperConfig := config.GetOrCreate()
 	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
 
 	mockupDB, err := InjectMockupDB(viperConfig)

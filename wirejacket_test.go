@@ -313,7 +313,7 @@ func TestGetConfig(t *testing.T) {
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
-	config := wj.GetConfig()
+	config := GetConfig()
 	assert.Equal(t, "defaultVal", config.GetString("no_exists", "defaultVal"))
 	assert.Equal(t, "Genesis OssiconesBlock", config.GetString("ossicones_genesis_block_data", "defaultVal"))
 

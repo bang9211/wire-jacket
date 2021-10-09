@@ -5,8 +5,12 @@ import (
 	"log"
 
 	wirejacket "github.com/bang9211/wire-jacket"
-	"github.com/bang9211/wire-jacket/internal/config"
 )
+
+// Don't make Config interface and implements like this.
+// It exists defaultly in wirejacket. Use it via wirejacket.GetConfig().
+// This is for example purposes only.
+type Config interface{}
 
 // ==============================================
 // Database Interface - MockupDB Implement example
@@ -19,15 +23,14 @@ type Database interface {
 }
 
 type MockupDB struct {
-	config config.Config
+	config Config
 }
 
-func NewMockupDB(config config.Config) Database {
+func NewMockupDB(config Config) Database {
 	return &MockupDB{config: config}
 }
 
 func (mdb *MockupDB) Connect() error {
-	log.Printf("connect : %s", mdb.config.GetString("address", "localhost:3306"))
 	return nil
 }
 
@@ -97,7 +100,7 @@ func (mbc *MockupBlockchain) Close() error {
 // =======================================
 
 // InjectMockupDB injects dependencies and inits of Database.
-func InjectMockupDB(config2 config.Config) (Database, error) {
+func InjectMockupDB(config2 Config) (Database, error) {
 	database := NewMockupDB(config2)
 	return database, nil
 }

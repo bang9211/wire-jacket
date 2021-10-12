@@ -12,7 +12,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var defaultConfigFile = "app.conf"
+const flagName = "viperconfig"
+const defaultConfigFile = "app.conf"
+
 var once sync.Once
 var viperConfig *ViperConfig
 
@@ -46,7 +48,7 @@ type ViperConfig struct {
 func GetOrCreate() Config {
 	if viperConfig == nil {
 		once.Do(func() {
-			viperConfig = &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+			viperConfig = &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(flagName, flag.ExitOnError)}
 			viperConfig.init()
 		})
 	}

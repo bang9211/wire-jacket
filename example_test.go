@@ -7,11 +7,6 @@ import (
 	wirejacket "github.com/bang9211/wire-jacket"
 )
 
-// Don't make Config interface and implements like this.
-// It exists defaultly in wirejacket. Use it via wirejacket.GetConfig().
-// This is for example purposes only.
-type Config interface{}
-
 // ==============================================
 // Database Interface - MockupDB Implement example
 // ==============================================
@@ -22,12 +17,10 @@ type Database interface {
 	Close() error
 }
 
-type MockupDB struct {
-	config Config
-}
+type MockupDB struct{}
 
-func NewMockupDB(config Config) Database {
-	return &MockupDB{config: config}
+func NewMockupDB() Database {
+	return &MockupDB{}
 }
 
 func (mdb *MockupDB) Connect() error {
@@ -35,7 +28,6 @@ func (mdb *MockupDB) Connect() error {
 }
 
 func (mdb *MockupDB) Close() error {
-	// drs = nil
 	return nil
 }
 
@@ -100,8 +92,8 @@ func (mbc *MockupBlockchain) Close() error {
 // =======================================
 
 // InjectMockupDB injects dependencies and inits of Database.
-func InjectMockupDB(config2 Config) (Database, error) {
-	database := NewMockupDB(config2)
+func InjectMockupDB() (Database, error) {
+	database := NewMockupDB()
 	return database, nil
 }
 
@@ -131,18 +123,20 @@ func Example() {
 	wj := wirejacket.New().
 		SetEagerInjectors(EagerInjectors).
 		SetInjectors(Injectors)
+	defer wj.Close()
 
 	// Inject eager injectors.
 	if err := wj.DoWire(); err != nil {
-		log.Fatal(err)
+		// Error occured in this example, because there is no app.conf and modules.
+		log.Print(err)
 	}
 
-	// Check value of modules in app.conf.
-	// Or You can set modules using SetActivatingModules() directly.
-	wj.SetActivatingModules([]string{"mockup_blockchain", "mockup_databse"})
+	// You can set modules using SetActivatingModules() directly without app.conf.
+	wj.SetActivatingModules([]string{"mockup_blockchain", "mockup_database"})
 
 	// Get module and use.
 	blockchain := wj.GetModule("mockup_blockchain").(Blockchain)
+	blockchain.AddBlock("test")
 	fmt.Println(blockchain.GetBlocks())
 }
 
@@ -150,6 +144,7 @@ func Example() {
 func Example_second() {
 	// Create wirejacket with serviceName.
 	wj := wirejacket.NewWithServiceName("example_service")
+	defer wj.Close()
 
 	// You can also add injector directly, instead of SetInjectors().
 	wj.AddInjector("mockup_database", InjectMockupDB)
@@ -157,10 +152,11 @@ func Example_second() {
 
 	// Check value of modules in app.conf.
 	// Or You can set modules using SetActivatingModules() directly.
-	wj.SetActivatingModules([]string{"mockup_blockchain", "mockup_databse"})
+	wj.SetActivatingModules([]string{"mockup_blockchain", "mockup_database"})
 
 	// You can also get module without DoWire().
 	// the dependencies of the module are injected automatically.
 	blockchain := wj.GetModule("mockup_blockchain").(Blockchain)
+	blockchain.AddBlock("test")
 	fmt.Println(blockchain.GetBlocks())
 }

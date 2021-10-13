@@ -112,9 +112,9 @@ func (vc *ViperConfig) GetBool(key string, defaultVal bool) bool {
 
 func (vc *ViperConfig) GetString(key string, defaultVal string) string {
 	if vc.viper.IsSet(key) {
-		return vc.viper.GetString(key)
+		return os.ExpandEnv(vc.viper.GetString(key))
 	}
-	return defaultVal
+	return os.ExpandEnv(defaultVal)
 }
 
 func (vc *ViperConfig) GetInt(key string, defaultVal int) int {
@@ -207,7 +207,14 @@ func (vc *ViperConfig) GetStringMap(key string, defaultVal map[string]interface{
 
 func (vc *ViperConfig) GetStringMapString(key string, defaultVal map[string]string) map[string]string {
 	if vc.viper.IsSet(key) {
-		return vc.viper.GetStringMapString(key)
+		m := vc.viper.GetStringMapString(key)
+		for k, v := range m {
+			m[k] = os.ExpandEnv(v)
+		}
+		return m
+	}
+	for k, v := range defaultVal {
+		defaultVal[k] = os.ExpandEnv(v)
 	}
 	return defaultVal
 }

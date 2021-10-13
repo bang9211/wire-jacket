@@ -68,6 +68,7 @@ var (
 		"test2": {"Nice", "To"},
 		"test3": {"Meet", "You"},
 	}
+	testStringWithEnvVal = "white cow is better than black cow."
 )
 
 func TestImplementConfig(t *testing.T) {
@@ -175,6 +176,8 @@ func TestLoadInvalidFormat(t *testing.T) {
 func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.json")
+	os.Setenv("VIPER_CONFIG_TEST1", "white cow")
+	os.Setenv("VIPER_CONFIG_TEST2", "black cow")
 	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
@@ -195,6 +198,7 @@ func TestLoadJSON(t *testing.T) {
 	Equal(t, testStringMapVal, cfg.GetStringMap("test_viper_config_stringmap_value", defaultStringMapVal))
 	Equal(t, testStringMapStringVal, cfg.GetStringMapString("test_viper_config_stringmapstring_value", defaultStringMapStringVal))
 	Equal(t, testStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))
+	Equal(t, testStringWithEnvVal, cfg.GetString("test_viper_config_string_with_env_value", defaultStringVal))
 }
 
 func TestLoadYAML(t *testing.T) {

@@ -79,13 +79,13 @@ func (o *Ossicones) Close() error {
 }
 ```
 Suppose there is MongoDB that implements Database 
-Interface like MySQL. And Wire-Jacket has ViperConfig by default.
+Interface like MySQL. And Wire-Jacket has ViperJacket by default.
 
 Then, there are 3 `Interfaces` and 4 `Implements`.
 
 - Database `Interface` - MySQL, MongoDB `Implement`
 - Blockchain `Interface` - Ossicones `Implement`
-- (Default) Config `Interface` - ViperConfig `Implement`
+- (Default) Config `Interface` - ViperJacket `Implement`
 
 Database depends on config.Config. Blockchain depends on Database.
 

@@ -11,7 +11,7 @@ import (
 	"github.com/bang9211/wire-jacket/internal/utils"
 )
 
-const DefaultConfigName = "viperconfig"
+const DefaultConfigName = "viperjacket"
 const DefaultModulesKey = "modules"
 
 // All the module should have Close().
@@ -37,7 +37,7 @@ type WireJacket struct {
 // in 'modules' value of config.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
-// overrided by envrionment variable.(see viperconfig.go)
+// overrided by envrionment variable.(see viperjacket.go)
 // So, when using more than one WireJacket on the same system,
 // each WireJacket should have a unique service name to avoid
 // conflicting value of 'modules'.
@@ -45,7 +45,7 @@ type WireJacket struct {
 // If serviceName no exists, WireJacket reads value of
 // 'modules'.
 // By default, WireJacket reads app.conf. Or you can specify
-// file with '--config' flag.(see viperconfig.go)
+// file with '--config' flag.(see viperjacket.go)
 //
 // modules example in app.conf without serviceName
 //
@@ -56,13 +56,13 @@ type WireJacket struct {
 // The list of activating modules is used as key of injectors
 // to call.
 func New() *WireJacket {
-	viperConfig := config.GetOrCreate()
+	viperJacket := config.GetOrCreate()
 	wj := &WireJacket{
-		config:                 viperConfig,
+		config:                 viperJacket,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
-		modules:                map[string]Module{DefaultConfigName: viperConfig},
-		sortedModulesByCreated: []Module{viperConfig},
+		modules:                map[string]Module{DefaultConfigName: viperJacket},
+		sortedModulesByCreated: []Module{viperJacket},
 	}
 	wj.activatingModuleNames = wj.readActivatingModules("")
 	wj.activatingModuleNames = append(wj.activatingModuleNames, DefaultConfigName)
@@ -76,7 +76,7 @@ func New() *WireJacket {
 // in 'modules' value of config.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
-// overrided by envrionment variable.(see viperconfig.go)
+// overrided by envrionment variable.(see viperjacket.go)
 // So, when using more than one WireJacket on the same system,
 // each WireJacket should have a unique service name to avoid
 // conflicting value of 'modules'.
@@ -88,7 +88,7 @@ func New() *WireJacket {
 // to contain space.
 //
 // By default, WireJacket reads app.conf. Or you can specify
-// file with '--config' flag.(see viperconfig.go)
+// file with '--config' flag.(see viperjacket.go)
 //
 // modules example in app.conf with serviceName(ossicones)
 //
@@ -99,13 +99,13 @@ func New() *WireJacket {
 // The list of activating modules is used as key of injectors
 // to call.
 func NewWithServiceName(serviceName string) *WireJacket {
-	viperConfig := config.GetOrCreate()
+	viperJacket := config.GetOrCreate()
 	wj := &WireJacket{
-		config:                 viperConfig,
+		config:                 viperJacket,
 		injectors:              map[string]interface{}{},
 		eagerInjectors:         map[string]interface{}{},
-		modules:                map[string]Module{DefaultConfigName: viperConfig},
-		sortedModulesByCreated: []Module{viperConfig},
+		modules:                map[string]Module{DefaultConfigName: viperJacket},
+		sortedModulesByCreated: []Module{viperJacket},
 	}
 	wj.activatingModuleNames = wj.readActivatingModules(serviceName)
 	wj.activatingModuleNames = append(wj.activatingModuleNames, DefaultConfigName)
@@ -268,7 +268,7 @@ func (wj *WireJacket) DoWire() error {
 	if len(wj.getInjectors()) == 0 {
 		return fmt.Errorf("no injectors to wire")
 	}
-	if len(wj.activatingModuleNames) == 1 { //default viperconfig
+	if len(wj.activatingModuleNames) == 1 { //default viperjacket
 		return fmt.Errorf("no activating modules to wire")
 	}
 	for moduleName, eagerInjector := range wj.eagerInjectors {

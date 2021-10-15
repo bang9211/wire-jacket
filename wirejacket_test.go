@@ -326,8 +326,8 @@ func TestGetModule(t *testing.T) {
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
-	viperconfig := wj.GetModule("viperconfig")
-	assert.NotNil(t, viperconfig)
+	viperjacket := wj.GetModule("viperjacket")
+	assert.NotNil(t, viperjacket)
 	mockup_blockchain := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, mockup_blockchain)
 	mockup_explorerserver := wj.GetModule("mockup_explorerserver")
@@ -339,7 +339,7 @@ func TestGetModule(t *testing.T) {
 	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
-	vc := wj.GetModule("viperconfig")
+	vc := wj.GetModule("viperjacket")
 	assert.NotNil(t, vc)
 	obc := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, obc)
@@ -349,7 +349,7 @@ func TestGetModule(t *testing.T) {
 	assert.NotNil(t, drs)
 	assert.Nil(t, wj.GetModule("no_exists"))
 
-	assert.Equal(t, viperconfig, vc)
+	assert.Equal(t, viperjacket, vc)
 	assert.Equal(t, mockup_blockchain, obc)
 	assert.Equal(t, mockup_explorerserver, des)
 	assert.Equal(t, mockup_restapiserver, drs)
@@ -363,8 +363,8 @@ func TestGetModuleByType(t *testing.T) {
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
-	viperconfig := wj.GetModuleByType((*config.Config)(nil))
-	assert.NotNil(t, viperconfig)
+	viperjacket := wj.GetModuleByType((*config.Config)(nil))
+	assert.NotNil(t, viperjacket)
 	mockup_blockchain := wj.GetModuleByType((*mockup.Blockchain)(nil))
 	assert.NotNil(t, mockup_blockchain)
 	mockup_explorerserver := wj.GetModuleByType((*mockup.ExplorerServer)(nil))
@@ -388,7 +388,7 @@ func TestGetModuleByType(t *testing.T) {
 	assert.Nil(t, wj.GetModuleByType((*io.Writer)(nil)))
 	assert.Nil(t, wj.GetModuleByType(nil))
 
-	assert.Equal(t, viperconfig, vc)
+	assert.Equal(t, viperjacket, vc)
 	assert.Equal(t, mockup_blockchain, obc)
 	assert.Equal(t, mockup_explorerserver, des)
 	assert.Equal(t, mockup_restapiserver, drs)
@@ -467,8 +467,8 @@ func TestClose(t *testing.T) {
 	err = wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
-	viperconfig := wj.GetModule("viperconfig")
-	assert.NotNil(t, viperconfig)
+	viperjacket := wj.GetModule("viperjacket")
+	assert.NotNil(t, viperjacket)
 	mockup_blockchain := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, mockup_blockchain)
 	mockup_explorerserver := wj.GetModule("mockup_explorerserver")
@@ -477,7 +477,7 @@ func TestClose(t *testing.T) {
 	assert.NotNil(t, mockup_restapiserver)
 	assert.Nil(t, wj.GetModule("no_exists"))
 
-	vc := wj.GetModule("viperconfig")
+	vc := wj.GetModule("viperjacket")
 	assert.NotNil(t, vc)
 	obc := wj.GetModule("mockup_blockchain")
 	assert.NotNil(t, obc)

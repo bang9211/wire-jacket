@@ -8,10 +8,10 @@ import (
 )
 
 func TestInjectMockupDB(t *testing.T) {
-	viperConfig := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+	viperJacket := config.GetOrCreate()
+	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
 
-	mysql, err := InjectMockupDB(viperConfig)
+	mysql, err := InjectMockupDB(viperJacket)
 	NotNil(t, mysql)
 	NoError(t, err)
 	Implements(t, (*Database)(nil), mysql, "It must implements of interface Database")
@@ -21,10 +21,10 @@ func TestInjectMockupDB(t *testing.T) {
 }
 
 func TestInjectMockupBlockchain(t *testing.T) {
-	viperConfig := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+	viperJacket := config.GetOrCreate()
+	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
 
-	mockupDB, err := InjectMockupDB(viperConfig)
+	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
 	NoError(t, err, "Failed to InjectMockupDB()")
 	Implements(t, (*Database)(nil), mockupDB, "It must implements of interface Database")
@@ -44,10 +44,10 @@ func TestInjectMockupBlockchain(t *testing.T) {
 }
 
 func TestInjectMockupExplorerServer(t *testing.T) {
-	viperConfig := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+	viperJacket := config.GetOrCreate()
+	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
 
-	mockupDB, err := InjectMockupDB(viperConfig)
+	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
 	NoError(t, err, "Failed to InjectMockupDB()")
 	Implements(t, (*Database)(nil), mockupDB, "It must implements of interface Database")
@@ -58,7 +58,7 @@ func TestInjectMockupExplorerServer(t *testing.T) {
 	Implements(t, (*Blockchain)(nil), mockbupBlockchain, "It must implements of interface Blockchain")
 	NoError(t, mockbupBlockchain.Init(), "Failed to Init()")
 
-	mockupExplorerServer, err := InjectMockupExplorerServer(viperConfig, mockbupBlockchain)
+	mockupExplorerServer, err := InjectMockupExplorerServer(viperJacket, mockbupBlockchain)
 	NotNil(t, mockupExplorerServer)
 	NoError(t, err, "Failed to InjectMockupExplorerServer()")
 	Implements(t, (*ExplorerServer)(nil), mockupExplorerServer, "It must implements of interface ExplorerServer")
@@ -69,10 +69,10 @@ func TestInjectMockupExplorerServer(t *testing.T) {
 }
 
 func TestInjectMockupRESTAPIServer(t *testing.T) {
-	viperConfig := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+	viperJacket := config.GetOrCreate()
+	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
 
-	mockupDB, err := InjectMockupDB(viperConfig)
+	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
 	NoError(t, err, "Failed to InjectMockupDB()")
 	Implements(t, (*Database)(nil), mockupDB, "It must implements of interface Database")
@@ -83,7 +83,7 @@ func TestInjectMockupRESTAPIServer(t *testing.T) {
 	Implements(t, (*Blockchain)(nil), mockbupBlockchain, "It must implements of interface Blockchain")
 	NoError(t, mockbupBlockchain.Init(), "Failed to Init()")
 
-	mockupRESTAPIServer, err := InjectMockupRESTAPIServer(viperConfig, mockbupBlockchain)
+	mockupRESTAPIServer, err := InjectMockupRESTAPIServer(viperJacket, mockbupBlockchain)
 	NotNil(t, mockupRESTAPIServer)
 	NoError(t, err, "Failed to InjectMockupRESTAPIServer()")
 	Implements(t, (*RESTAPIServer)(nil), mockupRESTAPIServer, "It must implements of interface RESTAPIServer")
@@ -94,10 +94,10 @@ func TestInjectMockupRESTAPIServer(t *testing.T) {
 }
 
 func TestInjectMockupInvalidReturnTest(t *testing.T) {
-	viperConfig := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperConfig, "It must implements of interface config.Config")
+	viperJacket := config.GetOrCreate()
+	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
 
-	mockupDB, err := InjectMockupDB(viperConfig)
+	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
 	NoError(t, err, "Failed to InjectMockupDB()")
 	Implements(t, (*Database)(nil), mockupDB, "It must implements of interface Database")
@@ -108,7 +108,7 @@ func TestInjectMockupInvalidReturnTest(t *testing.T) {
 	Implements(t, (*Blockchain)(nil), mockbupBlockchain, "It must implements of interface Blockchain")
 	NoError(t, mockbupBlockchain.Init(), "Failed to Init()")
 
-	testImpl, f, err := InjectMockupInvalidReturnTest(viperConfig, mockbupBlockchain)
+	testImpl, f, err := InjectMockupInvalidReturnTest(viperJacket, mockbupBlockchain)
 	NotNil(t, testImpl)
 	NotNil(t, f)
 	f()

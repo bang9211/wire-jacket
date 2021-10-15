@@ -52,8 +52,8 @@ var EagerInjectors = map[string]interface{}{
 //
 // Examples :
 //
-// - func InjectViperConfig() config.Config {}
-// - func InjectViperConfig() (config.Config, error) {}
+// - func InjectViperJacket() config.Config {}
+// - func InjectViperJacket() (config.Config, error) {}
 // - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain {}
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //

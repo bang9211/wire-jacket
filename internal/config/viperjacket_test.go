@@ -68,11 +68,13 @@ var (
 		"test2": {"Nice", "To"},
 		"test3": {"Meet", "You"},
 	}
-	testStringWithEnvVal = "white cow is better than black cow."
+	testStringWithEnvVal               = "white cow is better than black cow."
+	testDefaultStringWithEnvVal        = "white cow is bigger than black cow."
+	testDefaultStringWithNoExistEnvVal = "white cow is  than black cow."
 )
 
 func TestImplementConfig(t *testing.T) {
-	Implements(t, (*Config)(nil), new(ViperConfig),
+	Implements(t, (*Config)(nil), new(ViperJacket),
 		"It must implements of interface config.Config")
 }
 
@@ -101,7 +103,7 @@ func TestLoadDefault(t *testing.T) {
 func TestLoadConfigFileNotFound(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/no_exist.conf")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -126,7 +128,7 @@ func TestLoadConfigFileNotFound(t *testing.T) {
 func TestLoadUnsupportedExt(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/unsupported.test")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -151,7 +153,7 @@ func TestLoadUnsupportedExt(t *testing.T) {
 func TestLoadInvalidFormat(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/invalid_format.yaml")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -178,7 +180,7 @@ func TestLoadJSON(t *testing.T) {
 	os.Args = append(os.Args, "resources/test.json")
 	os.Setenv("VIPER_CONFIG_TEST1", "white cow")
 	os.Setenv("VIPER_CONFIG_TEST2", "black cow")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -199,12 +201,17 @@ func TestLoadJSON(t *testing.T) {
 	Equal(t, testStringMapStringVal, cfg.GetStringMapString("test_viper_config_stringmapstring_value", defaultStringMapStringVal))
 	Equal(t, testStringMapSliceVal, cfg.GetStringMapSlice("test_viper_config_stringmapslice_value", defaultStringMapSliceVal))
 	Equal(t, testStringWithEnvVal, cfg.GetString("test_viper_config_string_with_env_value", defaultStringVal))
+	os.Setenv("WHAT", "bigger")
+	Equal(t, testDefaultStringWithEnvVal, cfg.GetString("no_exist", "white cow is $WHAT than black cow."))
+	os.Unsetenv("WHAT")
+	Equal(t, testDefaultStringWithNoExistEnvVal, cfg.GetString("no_exist", "white cow is $WHAT than black cow."))
+
 }
 
 func TestLoadYAML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.yaml")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -229,7 +236,7 @@ func TestLoadYAML(t *testing.T) {
 func TestLoadTOML(t *testing.T) {
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/test.toml")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -266,7 +273,7 @@ func TestGetBool(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/bool_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -295,7 +302,7 @@ func TestGetString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/string_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -323,7 +330,7 @@ func TestGetInt(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -351,7 +358,7 @@ func TestGetInt32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int32_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -379,7 +386,7 @@ func TestGetInt64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/int64_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -407,7 +414,7 @@ func TestGetUint(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -435,7 +442,7 @@ func TestGetUint32(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint32_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -463,7 +470,7 @@ func TestGetUint64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/uint64_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -487,7 +494,7 @@ func TestGetFloat64(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/float64_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -511,7 +518,7 @@ func TestGetTime(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/time_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -535,7 +542,7 @@ func TestGetDuration(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/duration_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -560,7 +567,7 @@ func TestGetIntSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/intslice_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -585,7 +592,7 @@ func TestGetStringSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringslice_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -615,7 +622,7 @@ func TestGetStringMap(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmap_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -645,7 +652,7 @@ func TestGetStringMapString(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapstring_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -675,7 +682,7 @@ func TestGetStringMapSlice(t *testing.T) {
 
 	os.Args = append(os.Args, "--config")
 	os.Args = append(os.Args, "resources/stringmapslice_test.json")
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
 	defer cfg.Close()
 
@@ -687,7 +694,47 @@ func TestGetStringMapSlice(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	cfg := &ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+	cfg := &ViperJacket{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	cfg.init()
-	NoError(t, cfg.Close(), "Failed to close ViperConfig")
+	NoError(t, cfg.Close(), "Failed to close ViperJacket")
+}
+
+var expandTests = []struct {
+	in, out string
+}{
+	{"", ""},
+	{"$*", "all the args"},
+	{"$$", "PID"},
+	{"${*}", "all the args"},
+	{"$1", "ARGUMENT1"},
+	{"${1}", "ARGUMENT1"},
+	{"now is the time", "now is the time"},
+	{"$HOME", "/usr/gopher"},
+	{"$home_1", "/usr/foo"},
+	{"${HOME}", "/usr/gopher"},
+	{"${H}OME", "(Value of H)OME"},
+	{"A$$$#$1$H$home_1*B", "APIDNARGSARGUMENT1(Value of H)/usr/foo*B"},
+	{"start$+middle$^end$", "start$+middle$^end$"},
+	{"mixed$|bag$$$", "mixed$|bagPID$"},
+	{"$", "$"},
+	{"$}", "$}"},
+	{"${", ""},  // invalid syntax; eat up the characters
+	{"${}", ""}, // invalid syntax; eat up the characters
+}
+
+func TestExpand(t *testing.T) {
+	os.Setenv("*", "all the args")
+	os.Setenv("#", "NARGS")
+	os.Setenv("$", "PID")
+	os.Setenv("1", "ARGUMENT1")
+	os.Setenv("HOME", "/usr/gopher")
+	os.Setenv("H", "(Value of H)")
+	os.Setenv("home_1", "/usr/foo")
+	os.Setenv("_", "underscore")
+	for _, test := range expandTests {
+		result, _ := expand(test.in)
+		if result != test.out {
+			t.Errorf("Expand(%q)=%q; expected %q", test.in, result, test.out)
+		}
+	}
 }

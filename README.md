@@ -221,6 +221,9 @@ designer to define the interface required for the project and
 effectively divide the work. the each implementation can be integrated 
 easily and replaced as a plug-in using the config file. 
 
+
+Features of Wire-Jacket [ko] : https://syntaxsugar.tistory.com/entry/koWire-Jacket-IoC-Container-of-googlewire-for-cloud-native
+
 [doc-img]: http://img.shields.io/badge/GoDoc-Reference-blue.svg
 [doc]: https://pkg.go.dev/github.com/bang9211/wire-jacket
 

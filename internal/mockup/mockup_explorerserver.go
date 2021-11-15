@@ -1,6 +1,6 @@
 package mockup
 
-import "github.com/bang9211/wire-jacket/internal/config"
+import viperjacket "github.com/bang9211/viper-jacket"
 
 type ExplorerServer interface {
 	// Serve serves server.
@@ -12,11 +12,11 @@ type ExplorerServer interface {
 }
 
 type MockupExplorerServer struct {
-	config     config.Config
+	config     viperjacket.Config
 	blockchain Blockchain
 }
 
-func NewMockupExplorerServer(config config.Config, blockchain Blockchain) ExplorerServer {
+func NewMockupExplorerServer(config viperjacket.Config, blockchain Blockchain) ExplorerServer {
 	return &MockupExplorerServer{config: config, blockchain: blockchain}
 }
 

@@ -36,10 +36,10 @@ type Database interface {
 }
 
 type MySQL struct {
-    cfg config.Config
+    cfg viperjacket.Config
 }
 
-func NewMySQL(cfg config.Config) Database {
+func NewMySQL(cfg viperjacket.Config) Database {
     return &MySQL{cfg : cfg}
 }
 
@@ -87,7 +87,7 @@ Then, there are 3 `Interfaces` and 4 `Implements`.
 - Blockchain `Interface` - Ossicones `Implement`
 - (Default) Config `Interface` - ViperJacket `Implement`
 
-Database depends on config.Config. Blockchain depends on Database.
+Database depends on viperjacket.Config. Blockchain depends on Database.
 
 The pair of interface and implement called module in Wire-Jacket.
 
@@ -99,12 +99,12 @@ have to implment Close().
 ```go
 package wire
 
-func InjectMySQL(cfg config.Config) (Database, error) {
+func InjectMySQL(cfg viperjacket.Config) (Database, error) {
 	wire.Build(NewMySQL)
 	return nil, nil
 }
 
-func InjectMongoDB(cfg config.Config) (Databsae, error) {
+func InjectMongoDB(cfg viperjacket.Config) (Databsae, error) {
     wire.Build(NewMongoDB)
     return nil, nil
 }

@@ -3,13 +3,13 @@ package mockup
 import (
 	"testing"
 
-	"github.com/bang9211/wire-jacket/internal/config"
+	viperjacket "github.com/bang9211/viper-jacket"
 	. "github.com/stretchr/testify/assert"
 )
 
 func TestInjectMockupDB(t *testing.T) {
-	viperJacket := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
+	viperJacket := viperjacket.GetOrCreate()
+	Implements(t, (*viperjacket.Config)(nil), viperJacket, "It must implements of interface viperjacket.Config")
 
 	mysql, err := InjectMockupDB(viperJacket)
 	NotNil(t, mysql)
@@ -21,8 +21,8 @@ func TestInjectMockupDB(t *testing.T) {
 }
 
 func TestInjectMockupBlockchain(t *testing.T) {
-	viperJacket := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
+	viperJacket := viperjacket.GetOrCreate()
+	Implements(t, (*viperjacket.Config)(nil), viperJacket, "It must implements of interface viperjacket.Config")
 
 	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
@@ -44,8 +44,8 @@ func TestInjectMockupBlockchain(t *testing.T) {
 }
 
 func TestInjectMockupExplorerServer(t *testing.T) {
-	viperJacket := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
+	viperJacket := viperjacket.GetOrCreate()
+	Implements(t, (*viperjacket.Config)(nil), viperJacket, "It must implements of interface viperjacket.Config")
 
 	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
@@ -69,8 +69,8 @@ func TestInjectMockupExplorerServer(t *testing.T) {
 }
 
 func TestInjectMockupRESTAPIServer(t *testing.T) {
-	viperJacket := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
+	viperJacket := viperjacket.GetOrCreate()
+	Implements(t, (*viperjacket.Config)(nil), viperJacket, "It must implements of interface viperjacket.Config")
 
 	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)
@@ -94,8 +94,8 @@ func TestInjectMockupRESTAPIServer(t *testing.T) {
 }
 
 func TestInjectMockupInvalidReturnTest(t *testing.T) {
-	viperJacket := config.GetOrCreate()
-	Implements(t, (*config.Config)(nil), viperJacket, "It must implements of interface config.Config")
+	viperJacket := viperjacket.GetOrCreate()
+	Implements(t, (*viperjacket.Config)(nil), viperJacket, "It must implements of interface viperjacket.Config")
 
 	mockupDB, err := InjectMockupDB(viperJacket)
 	NotNil(t, mockupDB)

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bang9211/wire-jacket/internal/config"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/bang9211/wire-jacket/internal/mockup"
 	"github.com/stretchr/testify/assert"
 )
@@ -363,8 +363,8 @@ func TestGetModuleByType(t *testing.T) {
 		SetInjectors(mockup.Injectors).
 		SetEagerInjectors(mockup.EagerInjectors)
 
-	viperjacket := wj.GetModuleByType((*config.Config)(nil))
-	assert.NotNil(t, viperjacket)
+	vj := wj.GetModuleByType((*viperjacket.Config)(nil))
+	assert.NotNil(t, vj)
 	mockup_blockchain := wj.GetModuleByType((*mockup.Blockchain)(nil))
 	assert.NotNil(t, mockup_blockchain)
 	mockup_explorerserver := wj.GetModuleByType((*mockup.ExplorerServer)(nil))
@@ -377,7 +377,7 @@ func TestGetModuleByType(t *testing.T) {
 	err := wj.DoWire()
 	assert.NoError(t, err, "Failed to DoWire()")
 
-	vc := wj.GetModuleByType((*config.Config)(nil))
+	vc := wj.GetModuleByType((*viperjacket.Config)(nil))
 	assert.NotNil(t, vc)
 	obc := wj.GetModuleByType((*mockup.Blockchain)(nil))
 	assert.NotNil(t, obc)
@@ -388,7 +388,7 @@ func TestGetModuleByType(t *testing.T) {
 	assert.Nil(t, wj.GetModuleByType((*io.Writer)(nil)))
 	assert.Nil(t, wj.GetModuleByType(nil))
 
-	assert.Equal(t, viperjacket, vc)
+	assert.Equal(t, vj, vc)
 	assert.Equal(t, mockup_blockchain, obc)
 	assert.Equal(t, mockup_explorerserver, des)
 	assert.Equal(t, mockup_restapiserver, drs)

@@ -3,7 +3,7 @@ package mockup
 import (
 	"log"
 
-	"github.com/bang9211/wire-jacket/internal/config"
+	viperjacket "github.com/bang9211/viper-jacket"
 )
 
 type Database interface {
@@ -14,10 +14,10 @@ type Database interface {
 }
 
 type MockupDB struct {
-	config config.Config
+	config viperjacket.Config
 }
 
-func NewMockupDB(config config.Config) Database {
+func NewMockupDB(config viperjacket.Config) Database {
 	return &MockupDB{config: config}
 }
 

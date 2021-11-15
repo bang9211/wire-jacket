@@ -1,6 +1,6 @@
 package mockup
 
-import "github.com/bang9211/wire-jacket/internal/config"
+import viperjacket "github.com/bang9211/viper-jacket"
 
 type RESTAPIServer interface {
 	// Serve serves server.
@@ -12,11 +12,11 @@ type RESTAPIServer interface {
 }
 
 type MockupRESTAPIServer struct {
-	config     config.Config
+	config     viperjacket.Config
 	blockchain Blockchain
 }
 
-func NewMockupRESTAPIServer(config config.Config, blockchain Blockchain) RESTAPIServer {
+func NewMockupRESTAPIServer(config viperjacket.Config, blockchain Blockchain) RESTAPIServer {
 	return &MockupRESTAPIServer{config: config, blockchain: blockchain}
 }
 

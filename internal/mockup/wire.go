@@ -4,7 +4,7 @@
 package mockup
 
 import (
-	"github.com/bang9211/wire-jacket/internal/config"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/google/wire"
 )
 
@@ -52,14 +52,14 @@ var EagerInjectors = map[string]interface{}{
 //
 // Examples :
 //
-// - func InjectViperJacket() config.Config {}
-// - func InjectViperJacket() (config.Config, error) {}
-// - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain {}
-// - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
+// - func InjectViperJacket() viperjacket.Config {}
+// - func InjectViperJacket() (viperjacket.Config, error) {}
+// - func InjectOssiconesBlockChain(config viperjacket.Config) blockchain.Blockchain {}
+// - func InjectOssiconesBlockChain(config viperjacket.Config) (blockchain.Blockchain, error) {}
 //
 
 // InjectMockupDB injects dependencies and inits of Database.
-func InjectMockupDB(config config.Config) (Database, error) {
+func InjectMockupDB(config viperjacket.Config) (Database, error) {
 	wire.Build(NewMockupDB)
 	return nil, nil
 }
@@ -72,7 +72,7 @@ func InjectMockupBlockchain(db Database) (Blockchain, error) {
 
 // InjectMockupExplorerServer injects dependencies and inits of ExplorerServer.
 func InjectMockupExplorerServer(
-	config config.Config,
+	config viperjacket.Config,
 	blockchain Blockchain,
 ) (ExplorerServer, error) {
 	wire.Build(NewMockupExplorerServer)
@@ -81,7 +81,7 @@ func InjectMockupExplorerServer(
 
 // InjectMockupRESTAPIServer injects dependencies and inits of RESTAPIServer.
 func InjectMockupRESTAPIServer(
-	config config.Config,
+	config viperjacket.Config,
 	blockchain Blockchain,
 ) (RESTAPIServer, error) {
 	wire.Build(NewMockupRESTAPIServer)
@@ -91,7 +91,7 @@ func InjectMockupRESTAPIServer(
 // InjectMockupInvalidReturnTest injects dependencies and inits of
 // RESTAPIServer and return invalid format.
 func InjectMockupInvalidReturnTest(
-	config config.Config,
+	config viperjacket.Config,
 	blockchain Blockchain,
 ) (RESTAPIServer, func(), error) {
 	wire.Build(NewMockupRESTAPIServer)

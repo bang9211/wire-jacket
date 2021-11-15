@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/bang9211/wire-jacket/internal/config"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/bang9211/wire-jacket/internal/utils"
 )
 
@@ -22,7 +22,7 @@ type Module interface {
 
 // WireJacket structure. the jacket of the wires(injectors).
 type WireJacket struct {
-	config                 config.Config
+	config                 viperjacket.Config
 	injectors              map[string]interface{}
 	eagerInjectors         map[string]interface{}
 	modules                map[string]Module
@@ -34,7 +34,7 @@ type WireJacket struct {
 // If you want to use more than one WireJacket on the same system,
 // Use NewWithServiceName with unique serviceName instead of New().
 // By default, WireJacket reads list of module name to activate
-// in 'modules' value of config.
+// in 'modules' value of viperjacket.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
 // overrided by envrionment variable.(see viperjacket.go)
@@ -51,12 +51,12 @@ type WireJacket struct {
 //
 // ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
-// SetActivatingModules can specify activating modules without config.
+// SetActivatingModules can specify activating modules without viperjacket.
 // But this way is needed re-compile for changing module.
 // The list of activating modules is used as key of injectors
 // to call.
 func New() *WireJacket {
-	viperJacket := config.GetOrCreate()
+	viperJacket := viperjacket.GetOrCreate()
 	wj := &WireJacket{
 		config:                 viperJacket,
 		injectors:              map[string]interface{}{},
@@ -73,7 +73,7 @@ func New() *WireJacket {
 // NewWithServiceName creates empty WireJacket.
 // Make sure the serviceName is unique in same system.
 // By default, WireJacket reads list of module name to activate
-// in 'modules' value of config.
+// in 'modules' value of viperjacket.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
 // overrided by envrionment variable.(see viperjacket.go)
@@ -82,7 +82,7 @@ func New() *WireJacket {
 // conflicting value of 'modules'.
 //
 // If serviceName exists, WireJacket reads value of
-// '{serviceName}_modules' in config.
+// '{serviceName}_modules' in viperjacket.
 // the spaces of serviceName will be changed to '_'.
 // serviceName will be used in config, we don't recommend it
 // to contain space.
@@ -94,12 +94,12 @@ func New() *WireJacket {
 //
 // ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
 //
-// SetActivatingModules can specify activating modules without config.
+// SetActivatingModules can specify activating modules without viperjacket.
 // But this way is needed re-compile for changing module.
 // The list of activating modules is used as key of injectors
 // to call.
 func NewWithServiceName(serviceName string) *WireJacket {
-	viperJacket := config.GetOrCreate()
+	viperJacket := viperjacket.GetOrCreate()
 	wj := &WireJacket{
 		config:                 viperJacket,
 		injectors:              map[string]interface{}{},
@@ -144,8 +144,8 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // SetInjectors sets injectors to inject lazily.
 // WireJacket maps module_name to injector as a key-value pairs.
 // WireJacket tries to find module_name.
-// if serviceName no exists, value of 'modules' in config.
-// if serviceName exists, value of '{serviceName}_modules' in config.
+// if serviceName no exists, value of 'modules' in viperjacket.
+// if serviceName exists, value of '{serviceName}_modules' in viperjacket.
 //
 //
 // modules example of app.conf (serviceName=ossicones) :
@@ -155,10 +155,10 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 //
 // definition in wire.go
 //
-// func InjectMySQL(config config.Config) (database.Database, error) { ... }
-// func InjectOssiconesBlockchain(config config.Config, database.Database) (blockchain.Blockchain, error) { ... }
-// func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
-// func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
+// func InjectMySQL(config viperjacket.Config) (database.Database, error) { ... }
+// func InjectOssiconesBlockchain(config viperjacket.Config, database.Database) (blockchain.Blockchain, error) { ... }
+// func InjectDefaultExplorerServer(config viperjacket.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
+// func InjectDefaultRESTAPIServer(config viperjacket.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
 // injectors can be like this.
@@ -185,8 +185,8 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // SetEagerInjectors sets injectors to inject eagerly.
 // WireJacket maps module_name to injector as a key-value pairs.
 // WireJacket tries to find module_name.
-// if serviceName no exists, value of 'modules' in config.
-// if serviceName exists, value of '{serviceName}_modules' in config.
+// if serviceName no exists, value of 'modules' in viperjacket.
+// if serviceName exists, value of '{serviceName}_modules' in viperjacket.
 //
 //
 // modules example of app.conf (serviceName=ossicones) :
@@ -196,10 +196,10 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 //
 // definition in wire.go
 //
-// func InjectMySQL(config config.Config) (database.Database, error) { ... }
-// func InjectOssiconesBlockchain(config config.Config, database.Database) (blockchain.Blockchain, error) { ... }
-// func InjectDefaultExplorerServer(config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
-// func InjectDefaultRESTAPIServer(config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
+// func InjectMySQL(config viperjacket.Config) (database.Database, error) { ... }
+// func InjectOssiconesBlockchain(config viperjacket.Config, database.Database) (blockchain.Blockchain, error) { ... }
+// func InjectDefaultExplorerServer(config viperjacket.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
+// func InjectDefaultRESTAPIServer(config viperjacket.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
 //
 // injectors can be like this.
@@ -434,8 +434,8 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, e
 }
 
 // GetConfig returns config object.
-func GetConfig() config.Config {
-	return config.GetOrCreate()
+func GetConfig() viperjacket.Config {
+	return viperjacket.GetOrCreate()
 }
 
 // GetModule finds module using moduleName and returns module if exists.
@@ -459,7 +459,7 @@ func (wj *WireJacket) GetModule(moduleName string) interface{} {
 //
 // Example (process_name=ossicones) :
 //
-// config := wj.GetModuleByType((*config.Config)(nil))
+// config := wj.GetModuleByType((*viperjacket.Config)(nil))
 //
 // If no exists, it tries to create module using injector and returns.
 // This may return undesirable results if there are other implementations

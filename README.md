@@ -215,7 +215,7 @@ change the code.
 just change MySQL to MongoDB in config and restart the app.
 
 ### 3. Modulization, Loose-Coupling.
-Wirejacket uses the simple approach of injecting implement into the 
+Wire-Jacket uses the simple approach of injecting implement into the 
 interface. This approach simplifies and allows the team leader or 
 designer to define the interface required for the project and 
 effectively divide the work. the each implementation can be integrated 

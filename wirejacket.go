@@ -37,7 +37,7 @@ type WireJacket struct {
 // in 'modules' value of viperjacket.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
-// overrided by envrionment variable.(see viperjacket.go)
+// overrided by environment variable.(see viperjacket.go)
 // So, when using more than one WireJacket on the same system,
 // each WireJacket should have a unique service name to avoid
 // conflicting value of 'modules'.
@@ -76,7 +76,7 @@ func New() *WireJacket {
 // in 'modules' value of viperjacket.
 //
 // But Wire-Jacket considered The Twelve Factors. Config can be
-// overrided by envrionment variable.(see viperjacket.go)
+// overrided by environment variable.(see viperjacket.go)
 // So, when using more than one WireJacket on the same system,
 // each WireJacket should have a unique service name to avoid
 // conflicting value of 'modules'.
@@ -147,11 +147,9 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // if serviceName no exists, value of 'modules' in viperjacket.
 // if serviceName exists, value of '{serviceName}_modules' in viperjacket.
 //
-//
 // modules example of app.conf (serviceName=ossicones) :
 //
 // ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
-//
 //
 // definition in wire.go
 //
@@ -160,21 +158,19 @@ func (wj *WireJacket) SetActivatingModules(moduleNames []string) {
 // func InjectDefaultExplorerServer(config viperjacket.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config viperjacket.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
-//
 // injectors can be like this.
 //
-// var injectors = map[string]interface{}{
-// 		"mysql": 				InjectMySQL,
-// 		"ossiconesblockchain": 	InjectOssiconesBlockchain,
-// }
+//	var injectors = map[string]interface{}{
+//			"mysql": 				InjectMySQL,
+//			"ossiconesblockchain": 	InjectOssiconesBlockchain,
+//	}
 //
 // eagerInjectors can be like this.
 //
-// var eagerInjectors = map[string]interface{}{
-// 		"defaultexplorerserver": 	InjectDefaultExplorerServer,
-// 		"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
-// }
-//
+//	var eagerInjectors = map[string]interface{}{
+//			"defaultexplorerserver": 	InjectDefaultExplorerServer,
+//			"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
+//	}
 //
 // injectors will be injected lazily.
 func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket {
@@ -188,11 +184,9 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // if serviceName no exists, value of 'modules' in viperjacket.
 // if serviceName exists, value of '{serviceName}_modules' in viperjacket.
 //
-//
 // modules example of app.conf (serviceName=ossicones) :
 //
 // ossicones_modules=mysql ossiconesblockchain defaultexplorerserver defaultrestapiserver
-//
 //
 // definition in wire.go
 //
@@ -201,21 +195,19 @@ func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) *WireJacket
 // func InjectDefaultExplorerServer(config viperjacket.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) { ...}
 // func InjectDefaultRESTAPIServer(config viperjacket.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) { ...}
 //
-//
 // injectors can be like this.
 //
-// var injectors = map[string]interface{}{
-// 		"mysql": 				InjectMySQL,
-// 		"ossiconesblockchain": 	InjectOssiconesBlockchain,
-// }
+//	var injectors = map[string]interface{}{
+//			"mysql": 				InjectMySQL,
+//			"ossiconesblockchain": 	InjectOssiconesBlockchain,
+//	}
 //
 // eagerInjectors can be like this.
 //
-// var eagerInjectors = map[string]interface{}{
-// 		"defaultexplorerserver": 	InjectDefaultExplorerServer,
-// 		"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
-// }
-//
+//	var eagerInjectors = map[string]interface{}{
+//			"defaultexplorerserver": 	InjectDefaultExplorerServer,
+//			"defaultrestapiserver": 	InjectDefaultRESTAPIServer,
+//	}
 //
 // injectors will be injected eagerly.
 func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) *WireJacket {
